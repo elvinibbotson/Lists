@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  	<title>Diary</title>
+  	<link rel="stylesheet" type="text/css" href="listStyles.css">
+  	<link rel="manifest" href="listManifest.json">
+  	<meta name="application-name" content="List">
+  	<meta name="msapplication-square150x150logo" content="icons/icon150px.png">
+  	<meta name="msapplication-square70x70logo" content="icons/icon75px.png">
+</head>
+
+<body>
+
+<header class="header">
+	<button id="menuButton" type="menu" menu="menu" class="headerButton" aria-label="Menu"></button>
+    <h1 id="heading" class="header__title">Items</h1>
+    <!--button id="buttonMode" class="headerButton" aria-label="mode">choose</button-->
+</header>
+
+<main id="main" class="main">
+   <div class="container">
+        <div id="main" class="content">
+			<ul id="list" class="itemList"></ul>
+        </div>
+    </div>
+</main>
+
+<menu type="context" id="menu">
+    <p><menuitem id="editMode">edit</menuitem></p>
+    <p><menuitem id="listMode">list</menuitem></p>
+    <p><menuitem id="checkMode">check</menuitem></p>
+	<p><menuitem id="import">import</menuitem></p>
+	<p><menuitem id="export">export</menuitem></p>
+  </menu>
+  
+<div id="importDialog" class="dialog-container">
+	<div class="dialog">
+		<div class="dialog-title">Load from saved file</div>
+		<input type="file" id="fileChooser">
+		<div class="dialog-body">Imported data will replace any records you already have.</div>
+    		<div class="dialog-buttons">
+			<button id="buttonCancelImport" class="button">Cancel</button>
+    		</div>
+	</div>
+</div>
+
+<div id="editControls" class="controlPanel">
+    <div class="dialog-title">[item]</div>
+    <button class="controlButton" id="upButton">move up</button>
+    <button class="controlButton" id="downButton">move down</button>
+    <button class="controlButton" id="deleteButton">delete</button>
+    <button class="controlButton" id="addButton">add below</button>
+</div>
+
+<div id="addDialog" class="dialog-container">
+	<div class="dialog">
+		<div class="dialog-title">add item</div>
+		<p><input type="text" id="itemField" size="10"/></p>
+		<div class="dialog-buttons">
+			<button id="cancelButton" class="button">Cancel</button>
+			<button id="saveButton" class="button">Add</button>
+		</div>
+	</div>
+</div>
+
+<script src="listApp.js" async></script>
+
+</body>
+
+</html>
