@@ -241,10 +241,12 @@ function populateList() {
 }
 
 // START-UP CODE
+console.log("STARTING");
 var defaultData = { // first use - just one item: bread
     items: [{text: 'bread', checked: false}]
 }
 mode=window.localStorage.getItem('mode'); // recover last mode
+console.log("mode: "=mode);
 var request = window.indexedDB.open("listDB");
 request.onsuccess = function(event) {
 // console.log("request: "+request);
@@ -288,4 +290,5 @@ else { //Register the ServiceWorker
 	}).then(function(reg) {
 		console.log('Service worker has been registered for scope:'+ reg.scope);
 	});
+}
 }
