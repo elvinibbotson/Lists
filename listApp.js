@@ -187,29 +187,26 @@ mode=window.localStorage.getItem('mode'); // recover last mode
 
 
   // Save items to localStorage FOR NOW - LATER USE HOODIE
-  app.saveLogs = function() {
+saveLogs = function() {
     var logs = JSON.stringify(app.logs);
     localStorage.logs = logs;
 	console.log("LOGS SAVED: "+logs);
   };
   
-  // OPEN SELECTED ITEM FOR EDITING
-  app.openLog = function() {
-	console.log("open log: "+app.logIndex);
-//	app.resort=false;
-	app.log = app.logs[app.logIndex];
-	app.toggleDialog('logDialog',true);
-	id('logDateField').value=app.log.date;
-	id('logDaysField').value=app.log.days;
-	id('logTextField').value=app.log.text;
-	if(!app.log.tags) app.log.tags=[];
-	app.listLogTags();
-	id('buttonDeleteLog').disabled=false;
-	id('buttonDeleteLog').style.color='red';
+// EDIT SELECTED ITEM
+function showControls() {
+	console.log("edit item: "+itemIndex);
+	item = items[itemIndex];
+	id('itemText').innerHTML=item.text;
+	// if first item disable 'move up'
+	// if last item disable 'move down'
+	// if only item disable 'delete'
+	id('addButton').disabled=false; // can always add items
+	id('editControls').style.display='block';
   }
   
-  // POPULATE ITEMS LIST
-  function populateList() {
+// POPULATE ITEMS LIST
+function populateList() {
 	console.log("populate item list");
 	items = [];
 	var dbTransaction = app.db.transaction('items',"readwrite");
@@ -247,56 +244,54 @@ mode=window.localStorage.getItem('mode'); // recover last mode
 	}
   }
 
-  // START-UP CODE
-  var defaultData = { // first use - just one item: bread
-	  items: [{text: 'bread', checked: false}]
-  }
-	var request = window.indexedDB.open("listDB");
-	request.onsuccess = function(event) {
-		// console.log("request: "+request);
-		app.db=event.target.result;
-		console.log("DB open");
-		var dbTransaction = app.db.transaction('items',"readwrite");
-		console.log("indexedDB transaction ready");
-		var dbObjectStore = dbTransaction.objectStore('items');
-		console.log("indexedDB objectStore ready");
-		// code to read items from database
-		app.items=[];
-		console.log("items array ready");
-		var request = dbObjectStore.openCursor();
-		request.onsuccess = function(event) {  
-			var cursor = event.target.result;  
-    		if (cursor) {
-				items.push(cursor.value);
-				cursor.continue();  
-    			}
-			else {
-				console.log("No more entries!");
-				console.log(app.items.length+" items");
-				// ***** for now always start in edit mode *****
-			    populateList();
-			}
-		};
-	};
-	request.onupgradeneeded = function(event) {
-		var dbObjectStore = event.currentTarget.result.createObjectStore("items", { keyPath: "id", autoIncrement: true });
-		console.log("new items ObjectStore created");
-	};
-	request.onerror = function(event) {
-		alert("indexedDB error");
-	};
-  	// implement service worker if browser is PWA friendly 
-	if (navigator.serviceWorker.controller) {
-		console.log('Active service worker found, no need to register')
-	} else { //Register the ServiceWorker
-		navigator.serviceWorker.register('listSW.js', {
-			scope: '/List/'
-		}).then(function(reg) {
-			console.log('Service worker has been registered for scope:'+ reg.scope);
-		});
+// START-UP CODE
+var defaultData = { // first use - just one item: bread
+    items: [{text: 'bread', checked: false}]
+}
+var request = window.indexedDB.open("listDB");
+request.onsuccess = function(event) {
+// console.log("request: "+request);
+db=event.target.result;
+console.log("DB open");
+var dbTransaction = app.db.transaction('items',"readwrite");
+console.log("indexedDB transaction ready");
+var dbObjectStore = dbTransaction.objectStore('items');
+console.log("indexedDB objectStore ready");
+// code to read items from database
+items=[];
+console.log("items array ready");
+var request = dbObjectStore.openCursor();
+request.onsuccess = function(event) {  
+	var cursor = event.target.result;  
+    if (cursor) {
+		items.push(cursor.value);
+		cursor.continue();  
+    }
+	else {
+		console.log("No more entries!");
+		console.log(app.items.length+" items");
+		// ***** for now always start in edit mode *****
+	    populateList();
 	}
-})();
-
+};
+request.onupgradeneeded = function(event) {
+	var dbObjectStore = event.currentTarget.result.createObjectStore("items", { keyPath: "id", autoIncrement: true });
+	console.log("new items ObjectStore created");
+};
+request.onerror = function(event) {
+	alert("indexedDB error");
+};
+// implement service worker if browser is PWA friendly 
+if (navigator.serviceWorker.controller) {
+	console.log('Active service worker found, no need to register')
+}
+else { //Register the ServiceWorker
+	navigator.serviceWorker.register('listSW.js', {
+		scope: '/List/'
+	}).then(function(reg) {
+		console.log('Service worker has been registered for scope:'+ reg.scope);
+	});
+}
 
 
 
