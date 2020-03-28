@@ -246,7 +246,7 @@ var defaultData = { // first use - just one item: bread
     items: [{text: 'bread', checked: false}]
 }
 mode=window.localStorage.getItem('mode'); // recover last mode
-console.log("mode: "=mode);
+console.log("mode: "+mode);
 var request = window.indexedDB.open("listDB");
 request.onsuccess = function(event) {
 // console.log("request: "+request);
@@ -270,6 +270,7 @@ request.onsuccess = function(event) {
 		console.log("No more entries!");
 		console.log(app.items.length+" items");
 		// ***** for now always start in edit mode *****
+		alert('build list');
 	    populateList();
 	}
 };
