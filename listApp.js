@@ -48,7 +48,7 @@ id("import").addEventListener('click', function() { // IMPORT OPTION
 id('buttonCancelImport').addEventListener('click', function() { // CANCEL IMPORT DATA
 	id("menu").style.display="none";
 	id("menu").style.display="none";
-  });
+});
   
 id("fileChooser").addEventListener('change', function() { // IMPORT FILE
 	var file = id('fileChooser').files[0];
@@ -75,7 +75,7 @@ id("fileChooser").addEventListener('change', function() { // IMPORT FILE
 		alert("logs imported - restart");
   	});
   	fileReader.readAsText(file);
-},false);
+});
   
 id("export").addEventListener('click', function() { // EXPORT FILE
   	console.log("EXPORT");
@@ -181,17 +181,13 @@ id('deleteButton').addEventListener('click', function() { // DELETE ITEM
     id('editControls').style.display='none';
 })
 
-mode=window.localStorage.getItem('mode'); // recover last mode
-
-
-
-
-  // Save items to localStorage FOR NOW - LATER USE HOODIE
+/* Save items to localStorage FOR NOW - LATER USE HOODIE
 saveLogs = function() {
     var logs = JSON.stringify(app.logs);
     localStorage.logs = logs;
 	console.log("LOGS SAVED: "+logs);
-  };
+};
+*/
   
 // EDIT SELECTED ITEM
 function showControls() {
@@ -203,7 +199,7 @@ function showControls() {
 	// if only item disable 'delete'
 	id('addButton').disabled=false; // can always add items
 	id('editControls').style.display='block';
-  }
+}
   
 // POPULATE ITEMS LIST
 function populateList() {
@@ -242,12 +238,13 @@ function populateList() {
 	request.onerror = function(event) {
 		console.log("cursor request failed");
 	}
-  }
+}
 
 // START-UP CODE
 var defaultData = { // first use - just one item: bread
     items: [{text: 'bread', checked: false}]
 }
+mode=window.localStorage.getItem('mode'); // recover last mode
 var request = window.indexedDB.open("listDB");
 request.onsuccess = function(event) {
 // console.log("request: "+request);
@@ -292,6 +289,3 @@ else { //Register the ServiceWorker
 		console.log('Service worker has been registered for scope:'+ reg.scope);
 	});
 }
-
-
-
