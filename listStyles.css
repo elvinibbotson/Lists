@@ -107,6 +107,7 @@ button {
   font-weight: 400;
   font-size: 1em;
   border: solid, 1px;
+  background-color: blue;
   margin: 0;
   -webkit-box-flex: 1;
   -webkit-flex: 1;
