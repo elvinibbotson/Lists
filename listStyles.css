@@ -96,14 +96,16 @@ button {
   transition: transform 0.233s cubic-bezier(0, 0, 0.21, 1) 0.1s;
   transition: transform 0.233s cubic-bezier(0, 0, 0.21, 1) 0.1s, -webkit-transform 0.233s cubic-bezier(0, 0, 0.21, 1) 0.1s;
   z-index: 1000;
-  }
- .header #menuButton{
+}
+
+.header #menuButton{
     background: url(menuButton24px.svg) center center no-repeat;
-  }
+}
 
 .header__title {
   font-weight: 400;
   font-size: 1em;
+  border: solid, 1px;
   margin: 0;
   -webkit-box-flex: 1;
   -webkit-flex: 1;
