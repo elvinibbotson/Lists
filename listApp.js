@@ -249,47 +249,47 @@ mode=window.localStorage.getItem('mode'); // recover last mode
 console.log("mode: "+mode);
 var request = window.indexedDB.open("listDB");
 request.onsuccess = function(event) {
-// console.log("request: "+request);
-db=event.target.result;
-console.log("DB open");
-var dbTransaction = db.transaction('items',"readwrite");
-console.log("indexedDB transaction ready");
-var dbObjectStore = dbTransaction.objectStore('items');
-console.log("indexedDB objectStore ready");
-// code to read items from database
-items=[];
-console.log("items array ready");
-var request = dbObjectStore.openCursor();
-request.onsuccess = function(event) {  
-	var cursor = event.target.result;  
-    if (cursor) {
-		items.push(cursor.value);
-		cursor.continue();  
+    // console.log("request: "+request);
+    var db=event.target.result;
+    console.log("DB open");
+    var dbTransaction = db.transaction('items',"readwrite");
+    console.log("indexedDB transaction ready");
+    var dbObjectStore = dbTransaction.objectStore('items');
+    console.log("indexedDB objectStore ready");
+    // code to read items from database
+    items=[];
+    console.log("items array ready");
+    var request = dbObjectStore.openCursor();
+    request.onsuccess = function(event) {  
+	    var cursor = event.target.result;  
+        if (cursor) {
+    		items.push(cursor.value);
+	    	cursor.continue();  
+        }
+    	else {
+    		console.log("No more entries!");
+    		console.log(items.length+" items");
+    		// ***** for now always start in edit mode *****
+    		alert('build list');
+    	    populateList();
+	    }
+    };
+    request.onupgradeneeded = function(event) {
+    	var dbObjectStore = event.currentTarget.result.createObjectStore("items", { keyPath: "id", autoIncrement: true });
+	    console.log("new items ObjectStore created");
+    };
+    request.onerror = function(event) {
+    	alert("indexedDB error");
+    };
+    // implement service worker if browser is PWA friendly 
+    if (navigator.serviceWorker.controller) {
+    	console.log('Active service worker found, no need to register')
     }
-	else {
-		console.log("No more entries!");
-		console.log(items.length+" items");
-		// ***** for now always start in edit mode *****
-		alert('build list');
-	    populateList();
-	}
-};
-request.onupgradeneeded = function(event) {
-	var dbObjectStore = event.currentTarget.result.createObjectStore("items", { keyPath: "id", autoIncrement: true });
-	console.log("new items ObjectStore created");
-};
-request.onerror = function(event) {
-	alert("indexedDB error");
-};
-// implement service worker if browser is PWA friendly 
-if (navigator.serviceWorker.controller) {
-	console.log('Active service worker found, no need to register')
-}
-else { //Register the ServiceWorker
-	navigator.serviceWorker.register('listSW.js', {
-		scope: '/List/'
-	}).then(function(reg) {
-		console.log('Service worker has been registered for scope:'+ reg.scope);
-	});
-}
+    else { //Register the ServiceWorker
+    	navigator.serviceWorker.register('listSW.js', {
+	    	scope: '/List/'
+    	}).then(function(reg) {
+		    console.log('Service worker has been registered for scope:'+ reg.scope);
+	    });
+    }
 }
