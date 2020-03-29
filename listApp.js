@@ -252,7 +252,7 @@ request.onsuccess = function(event) {
 // console.log("request: "+request);
 db=event.target.result;
 console.log("DB open");
-var dbTransaction = app.db.transaction('items',"readwrite");
+var dbTransaction = db.transaction('items',"readwrite");
 console.log("indexedDB transaction ready");
 var dbObjectStore = dbTransaction.objectStore('items');
 console.log("indexedDB objectStore ready");
@@ -268,7 +268,7 @@ request.onsuccess = function(event) {
     }
 	else {
 		console.log("No more entries!");
-		console.log(app.items.length+" items");
+		console.log(items.length+" items");
 		// ***** for now always start in edit mode *****
 		alert('build list');
 	    populateList();
