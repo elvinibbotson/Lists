@@ -374,11 +374,11 @@ var request = window.indexedDB.open("listDB");
 request.onsuccess = function(event) {
     console.log("request: "+request);
     db=event.target.result;
-    console.log("DB open");
+    alert("DB open");
     var dbTransaction = db.transaction('items',"readwrite");
     console.log("indexedDB transaction ready");
     var dbObjectStore = dbTransaction.objectStore('items');
-    console.log("indexedDB objectStore ready");
+    alert("indexedDB objectStore ready");
     // code to read items from database
     items=[];
     console.log("items array ready");
