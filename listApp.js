@@ -189,7 +189,7 @@ id("export").addEventListener('click', function() { // EXPORT FILE
 */
 
 id('addButton').addEventListener('click', function() { // ADD BELOW BUTTON
-    id('itemField').text="";
+    id('itemField').value="";
     id('addDialog').style.display='block';
 })
 
@@ -270,10 +270,6 @@ function showControls() {
 	if(currentListItem) currentListItem.style.backgroundColor='white'; // deselect any previously selected item
 	currentListItem=id('list').children[listIndex];
 	currentListItem.style.backgroundColor='yellow'; // highlight new selection
-	id('upButton').disabled=(listIndex<1); // if first item disable 'move up'
-	// if last item disable 'move down'
-	id('deleteButton').disabled=(items.length<2); // if only item disable 'delete'
-	id('addButton').disabled=false; // can always add items
 	id('controls').style.display='block';
 	// id("editControls").classList.add('dialog-container--visible');
 }
@@ -370,6 +366,7 @@ var defaultData = { // first use - just one item: bread
     items: [{text: 'bread', checked: false}]
 }
 */
+mode='edit'; // default/first use mode
 mode=window.localStorage.getItem('mode'); // recover last mode
 console.log("mode: "+mode);
 var request = window.indexedDB.open("listDB");
