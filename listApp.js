@@ -11,38 +11,102 @@ var items=[];
 var item=null;
 var listIndex=null;
 var listName='List';
+var currentListItem=null;
 var mode=null;
 var lastSave=null;
+var months="JanFebMarAprMayJunJulAugSepOctNovDec";
 
 // EVENT LISTENERS
+/*
 id("main").addEventListener('click', function() {
 	id("menu").style.display="none";
 })
-  
+*/
+
+/*  
 id('menuButton').addEventListener('click', function() { // MENU BUTTON
 	var display = id("menu").style.display;
 	if(display == "block") id("menu").style.display = "none";
 	else id("menu").style.display = "block";
 })
+*/
 
-id('editMode').addEventListener('click', function() { // EDIT MODE
+id('editButton').addEventListener('click', function() { // EDIT MODE
+    setMode('edit');
+    /*
+    mode='edit';
     window.localStorage.setItem('mode',mode);
     // list of all items without checkboxes but with click action
+    */
 })
 
-id('listMode').addEventListener('click', function() { // LIST MODE
+id('listButton').addEventListener('click', function() { // LIST MODE
+    setMode('list');
+    /*
+    mode='list';
     window.localStorage.setItem('mode',mode);
     // list of all items with checkboxes
+    */
 })
 
-id('checkMode').addEventListener('click', function() { // ChECK MODE
+id('shopButton').addEventListener('click', function() { // SHOP MODE
+    setMode('shop');
+    /*
+    mode='shop';
     window.localStorage.setItem('mode',mode);
     // list of checked items with empty checkboxes
+    */
 })
-	
+
+function setMode(m) {
+    console.log("set mode to "+m);
+    mode=m;
+    window.localStorage.setItem('mode',mode); // remember mode
+    var request = window.indexedDB.open("listDB"); // update database
+    request.onsuccess = function(event) {
+        console.log("request: "+request);
+        db=event.target.result;
+        console.log("DB open");
+        var dbTransaction = db.transaction('items',"readwrite");
+        console.log("indexedDB transaction ready");
+        var dbObjectStore = dbTransaction.objectStore('items');
+        console.log("indexedDB objectStore ready");
+        // code to write items from database
+        var request=dbObjectStore.clear(); // empty database
+        request.onsuccess=function(event) {
+            for(var i in items) {
+                var request=dbObjectStore.add(items[i]); // update log in database
+    		    request.onsuccess = function(event)  {
+    	    		console.log("item "+i+" added - "+items[i].text);
+    	    	};
+	    	    request.onerror = function(event) {console.log("error adding "+item.id);};
+	        }
+        }
+        request.onerror = function(event) {console.log("error clearing database"+item);};
+        /*
+        for(var i in items) {
+            var request=dbObjectStore.add(items[i]); // update log in database
+    		request.onsuccess = function(event)  {
+    			console.log("item "+i+" updated - "+items[i].text);
+    		};
+	    	request.onerror = function(event) {console.log("error updating log "+item.id);};
+	    }
+	    */
+	    populateList(); // rebuild list for new mode
+    }
+    request.onupgradeneeded = function(event) {
+	    var dbObjectStore = event.currentTarget.result.createObjectStore("items", { keyPath: "id", autoIncrement: true });
+        console.log("new items ObjectStore created");
+    };
+    request.onerror = function(event) {
+	    alert("indexedDB error");
+    };
+}
+
+/*	
 id("import").addEventListener('click', function() { // IMPORT OPTION
     console.log("IMPORT");
-	app.toggleDialog("importDialog", true);
+	id('importDialog').style.display='block';
 })
 	
 id('buttonCancelImport').addEventListener('click', function() { // CANCEL IMPORT DATA
@@ -82,18 +146,17 @@ id("export").addEventListener('click', function() { // EXPORT FILE
 	var today= new Date();
 	var fileName = "listItems" + today.getDate();
 	var n = today.getMonth();
-	fileName += app.months.substr(n*3,3);
+	fileName += months.substr(n*3,3);
 	n = today.getFullYear() % 100;
 	if(n<10) fileName+="0";
 	fileName += n + ".json";
-	var dbTransaction = app.db.transaction('items',"readwrite");
+	var dbTransaction = db.transaction('items',"readwrite");
 	console.log("indexedDB transaction ready");
-	var dbObjectStore = dbTransaction.objectStore('logs');
+	var dbObjectStore = dbTransaction.objectStore('items');
 	console.log("indexedDB objectStore ready");
 	var request = dbObjectStore.openCursor();
-	
-	var logs=[];
-	dbTransaction = app.db.transaction('items',"readwrite");
+	var items=[];
+	dbTransaction = db.transaction('items',"readwrite");
 	console.log("indexedDB transaction ready");
 	dbObjectStore = dbTransaction.objectStore('items');
 	console.log("indexedDB objectStore ready");
@@ -107,7 +170,6 @@ id("export").addEventListener('click', function() { // EXPORT FILE
     		}
 		else {
 			console.log(items.length+" items - save");
-    		logs.sort(function(a,b) { return Date.parse(a.date)-Date.parse(b.date)}); //chronological order
 			var data={'items': items};
 			var json=JSON.stringify(data);
 			var blob = new Blob([json], {type:"data:application/json"});
@@ -124,50 +186,68 @@ id("export").addEventListener('click', function() { // EXPORT FILE
 		}
 	}
 })
+*/
 
 id('addButton').addEventListener('click', function() { // ADD BELOW BUTTON
     id('itemField').text="";
     id('addDialog').style.display='block';
 })
 
-id('saveButton').addEventListener('click', function() { // SAVE NEW ITEM
-    item.text=id('itemField').text;
+id('saveButton').addEventListener('click', function() { // INSERT NEW ITEM
+    item={};
+    item.checked=false;
+    item.text=id('itemField').value;
     // check no items with this text
-    
-    app.toggleDialog('logDialog',false);
-	console.log("save log - date: "+app.log.date+" "+app.days+" days text: "+app.log.text);
-	var dbTransaction = app.db.transaction('logs',"readwrite");
+    console.log("check "+item.text+" is new");
+    for(var i in items) {
+        console.log(i+": "+items[i].text);
+        if(items[i].text==item.text) alert('already exists');
+    }
+	console.log('insert '+item.text+" after "+items[listIndex].text);
+	items.splice(listIndex+1,0,item);
+	populateList();
+	currentListItem.style.backgroundColor='white';
+	id('addDialog').style.display='none';
+	id('controls').style.display='none';
+	/*
+	var dbTransaction = db.transaction('items',"readwrite");
 	console.log("indexedDB transaction ready");
-	var dbObjectStore = dbTransaction.objectStore('logs');
+	var dbObjectStore = dbTransaction.objectStore('items');
 	console.log("indexedDB objectStore ready");
-	console.log("save log - logIndex is "+app.logIndex);
-	if(app.logIndex == null) { // add new log
-		var request = dbObjectStore.add(app.log);
+	console.log("save item - listIndex is "+listIndex);
+	// CHANGE THIS TO INSERT ITEMS
+	if(listIndex == null) { // add new item
+		var request = dbObjectStore.add(item);
 		request.onsuccess = function(event) {
-			console.log("new log added: "+app.log.text);
+			console.log("new item added: "+item.text);
 			app.populateList();
 		};
-		request.onerror = function(event) {console.log("error adding new log");};
+		request.onerror = function(event) {console.log("error adding new item");};
 	}
 	else { // update existing log
-		var request = dbObjectStore.put(app.log); // update log in database
+		var request = dbObjectStore.put(item); // update log in database
 		request.onsuccess = function(event)  {
-			console.log("log "+app.log.id+" updated");
-			app.populateList();
+			console.log("item "+item.id+" updated");
+			populateList();
 		};
-		request.onerror = function(event) {console.log("error updating log "+app.log.id);};
+		request.onerror = function(event) {console.log("error updating log "+item.id);};
 	}
+	*/
 });
   
 id('cancelButton').addEventListener('click', function() { // CANCEL ADD BELOW
+    console.log("cancel add");
     id('addDialog').style.display='none';
-    id('editControls').style.display='none';
+    id('controls').style.display='none';
 })
 
 id('deleteButton').addEventListener('click', function() { // DELETE ITEM
     // remove current item from list and from items array
     // remove from database
-    console.log("delete item "+itemIndex+" - "+item.text); // delete item
+    console.log("delete item "+listIndex+" - "+items[listIndex].text); // delete item
+    items.splice(listIndex,1);
+    populateList();
+    /*
 	var dbTransaction = db.transaction("items","readwrite");
 	console.log("indexedDB transaction ready");
 	var dbObjectStore = dbTransaction.objectStore("items");
@@ -178,34 +258,73 @@ id('deleteButton').addEventListener('click', function() { // DELETE ITEM
 		populateList();
 	};
 	request.onerror = function(event) {console.log("error deleting item "+item.id);};
-    id('editControls').style.display='none';
+	*/
+    id('controls').style.display='none';
 })
 
-/* Save items to localStorage FOR NOW - LATER USE HOODIE
-saveLogs = function() {
-    var logs = JSON.stringify(app.logs);
-    localStorage.logs = logs;
-	console.log("LOGS SAVED: "+logs);
-};
-*/
-  
 // EDIT SELECTED ITEM
 function showControls() {
-	console.log("edit item: "+itemIndex);
-	item = items[itemIndex];
-	id('itemText').innerHTML=item.text;
-	// if first item disable 'move up'
+	console.log("edit item: "+listIndex);
+	item = items[listIndex];
+	console.log("edit item: "+listIndex+" - "+item.text);
+	if(currentListItem) currentListItem.style.backgroundColor='white'; // deselect any previously selected item
+	currentListItem=id('list').children[listIndex];
+	currentListItem.style.backgroundColor='yellow'; // highlight new selection
+	id('upButton').disabled=(listIndex<1); // if first item disable 'move up'
 	// if last item disable 'move down'
-	// if only item disable 'delete'
+	id('deleteButton').disabled=(items.length<2); // if only item disable 'delete'
 	id('addButton').disabled=false; // can always add items
-	id('editControls').style.display='block';
+	id('controls').style.display='block';
+	// id("editControls").classList.add('dialog-container--visible');
 }
   
 // POPULATE ITEMS LIST
 function populateList() {
-	console.log("populate item list");
+	console.log("populate item  - mode is "+mode);
+	id('list').innerHTML=""; // clear list
+	var html="";
+	for(var i in items) {
+	    console.log("list item "+i+" "+items[i].text+" checked:"+items[i].checked);
+	    if((mode=='shop')&&(!items[i].checked)) continue;
+	    var listItem = document.createElement('li');
+		listItem.index=i;
+	 	listItem.classList.add('list-item');
+	 	html=""
+	 	switch(mode) {
+	 	    case 'edit':
+	 	        listItem.addEventListener('click', function(){listIndex=this.index; showControls();});
+	 	        break;
+	 	    default:
+	 	        html="<input type='checkbox'";
+	 	        if((mode=='list')&&(items[i].checked)) html+=" checked>";
+	 	        else html+=">";
+	 	        listItem.addEventListener('click', function(){
+	 	            items[this.index].checked=!items[this.index].checked;
+	 	            console.log("checked: "+items[this.index].checked);
+	 	        });
+	 	}
+		html+=items[i].text+"<br>";
+		console.log("item html: "+html);
+		listItem.innerHTML=html;
+		id('list').appendChild(listItem);
+		console.log("list item "+i+": "+items[i].text);
+	}
+	id('editButton').style.backgroundColor='silver';
+	id('listButton').style.backgroundColor='silver';
+    id('shopButton').style.backgroundColor='silver';
+	switch(mode) {
+	    case 'edit':
+	        id('editButton').style.backgroundColor='white';
+	        break;
+	    case 'list':
+	        id('listButton').style.backgroundColor='white';
+	        break;
+	    case 'shop':
+	        id('shopButton').style.backgroundColor='white';
+	}
+	/*
 	items = [];
-	var dbTransaction = app.db.transaction('items',"readwrite");
+	var dbTransaction = db.transaction('items',"readwrite");
 	console.log("indexedDB transaction ready");
 	var dbObjectStore = dbTransaction.objectStore('items');
 	console.log("indexedDB objectStore ready");
@@ -217,7 +336,11 @@ function populateList() {
     		cursor.continue();
 		}
 		else {
-			console.log("list "+app.logs.length+" items");
+			console.log("list "+items.length+" items");
+			if(items.length<1) {
+			    console.log("initialise with first item - bread");
+			    items=[{text: 'bread', checked: false}];
+			}
 			console.log("populate list");
 			id('list').innerHTML=""; // clear list
 			var html="";
@@ -228,8 +351,7 @@ function populateList() {
 				listItem.index=i;
 	 		 	listItem.classList.add('list-item');
 				listItem.addEventListener('click', function(){listIndex=this.index; showControls();});
-				html=app.logs[i].text+"<br>";
-				d=app.logs[i].date;
+				html=items[i].text+"<br>";
 				listItem.innerHTML=html;
 		  		id('list').appendChild(listItem);
   			}
@@ -238,19 +360,22 @@ function populateList() {
 	request.onerror = function(event) {
 		console.log("cursor request failed");
 	}
+	*/
 }
 
 // START-UP CODE
 console.log("STARTING");
+/*
 var defaultData = { // first use - just one item: bread
     items: [{text: 'bread', checked: false}]
 }
+*/
 mode=window.localStorage.getItem('mode'); // recover last mode
 console.log("mode: "+mode);
 var request = window.indexedDB.open("listDB");
 request.onsuccess = function(event) {
-    // console.log("request: "+request);
-    var db=event.target.result;
+    console.log("request: "+request);
+    db=event.target.result;
     console.log("DB open");
     var dbTransaction = db.transaction('items',"readwrite");
     console.log("indexedDB transaction ready");
@@ -264,32 +389,37 @@ request.onsuccess = function(event) {
 	    var cursor = event.target.result;  
         if (cursor) {
     		items.push(cursor.value);
+    		console.log("item: "+cursor.value.text+"/"+cursor.value.checked);
 	    	cursor.continue();  
         }
     	else {
     		console.log("No more entries!");
     		console.log(items.length+" items");
+    		if(items.length<1) {
+			    console.log("initialise with first item - bread");
+			    items=[{text: 'bread', checked: false}];
+			}
     		// ***** for now always start in edit mode *****
-    		alert('build list');
+    		console.log('build list');
     	    populateList();
 	    }
-    };
-    request.onupgradeneeded = function(event) {
-    	var dbObjectStore = event.currentTarget.result.createObjectStore("items", { keyPath: "id", autoIncrement: true });
-	    console.log("new items ObjectStore created");
-    };
-    request.onerror = function(event) {
-    	alert("indexedDB error");
-    };
-    // implement service worker if browser is PWA friendly 
-    if (navigator.serviceWorker.controller) {
-    	console.log('Active service worker found, no need to register')
     }
-    else { //Register the ServiceWorker
-    	navigator.serviceWorker.register('listSW.js', {
-	    	scope: '/List/'
-    	}).then(function(reg) {
-		    console.log('Service worker has been registered for scope:'+ reg.scope);
-	    });
-    }
+}
+request.onupgradeneeded = function(event) {
+	var dbObjectStore = event.currentTarget.result.createObjectStore("items", { keyPath: "id", autoIncrement: true });
+    console.log("new items ObjectStore created");
+};
+request.onerror = function(event) {
+	alert("indexedDB error");
+};
+// implement service worker if browser is PWA friendly 
+if (navigator.serviceWorker.controller) {
+	console.log('Active service worker found, no need to register')
+}
+else { //Register the ServiceWorker
+	navigator.serviceWorker.register('listSW.js', {
+	    scope: '/List/'
+    }).then(function(reg) {
+	    console.log('Service worker has been registered for scope:'+ reg.scope);
+	});
 }

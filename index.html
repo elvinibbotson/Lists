@@ -16,9 +16,11 @@
 <body>
 
 <header class="header">
-	<button id="menuButton" type="menu" menu="menu" class="headerButton" aria-label="Menu"></button>
-    <h1 id="heading" class="header__title">Items</h1>
-    <!--button id="buttonMode" class="headerButton" aria-label="mode">choose</button-->
+	<!--button id="menuButton" type="menu" menu="menu" class="headerButton" aria-label="Menu"></button-->
+    <!--h1 id="heading" class="header__title">Items</h1-->
+    <button class='modeButton' id='editButton'>edit</button>
+    <button class='modeButton' id='listButton'>list</button>
+    <button class='modeButton' id='shopButton'>shop</button>
 </header>
 
 <main id="main" class="main">
@@ -29,15 +31,15 @@
     </div>
 </main>
 
-<menu type="context" id="menu">
+<!--menu type="context" id="menu">
     <p><menuitem id="editMode">edit</menuitem></p>
     <p><menuitem id="listMode">list</menuitem></p>
     <p><menuitem id="checkMode">check</menuitem></p>
 	<p><menuitem id="import">import</menuitem></p>
 	<p><menuitem id="export">export</menuitem></p>
-  </menu>
+</menu-->
   
-<div id="importDialog" class="dialog-container">
+<!--div id="importDialog" class="dialog-container">
 	<div class="dialog">
 		<div class="dialog-title">Load from saved file</div>
 		<input type="file" id="fileChooser">
@@ -46,24 +48,30 @@
 			<button id="buttonCancelImport" class="button">Cancel</button>
     		</div>
 	</div>
+</div-->
+
+<div id='controls'>
+    <button class='controlButton' id='upButton'></button>'
+    <button class='controlButton' id='downButton'></button>'
+    <button class='controlButton' id='deleteButton'></button>'
+    <button class='controlButton' id='addButton'></button>'
+    <!-- could use characters... up: &#x25B3; down: &#x25BD;  delete: &#x274C; -->
 </div>
 
-<div id="editControls" class="dialog-container">
+<!--div id="editControls" class="dialog-container">
     <div class="dialog-title" id='itemText'>[item]</div>
     <button class="controlButton" id="upButton">move up</button>
     <button class="controlButton" id="downButton">move down</button>
     <button class="controlButton" id="deleteButton">delete</button>
     <button class="controlButton" id="addButton">add below</button>
-</div>
+</div-->
 
-<div id="addDialog" class="dialog-container">
-	<div class="dialog">
-		<div class="dialog-title">add item</div>
-		<p><input type="text" id="itemField" size="10"/></p>
-		<div class="dialog-buttons">
-			<button id="cancelButton" class="button">Cancel</button>
-			<button id="saveButton" class="button">Add</button>
-		</div>
+<div id="addDialog">
+	<div class="dialog-title">add item below</div>
+	<p><input type="text" id="itemField" size="10"/></p>
+	<div class="dialog-buttons">
+		<button id="cancelButton" class="button">Cancel</button>
+		<button id="saveButton" class="button">Add</button>
 	</div>
 </div>
 

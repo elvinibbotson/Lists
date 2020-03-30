@@ -39,19 +39,26 @@ body {
           align-content: stretch;
   background: "gray" }
  
- input {
+input {
 	font-size: 1.2em;
 	height: 24px;
 	background-color: white;
 	border: 1px solid gray;
+	margin-left: 20px;
 }
 
+input[type=checkbox] {
+    width: 32px;
+    height: 32px;
+}
+/*
 #fileChooser {
 	margin: 20px;
 }
-
+*/
 button {
 	height: 32px;
+	font-family: symbol;
 	font-size: 1.5em;
 	vertical-align: bottom;
 	background-color: white;
@@ -62,11 +69,10 @@ button {
   width: 100%;
   height: 32px;
   color: #FFF;
-  background: #008844;
+  background-color: silver;
   position: fixed;
-  font-size: 20px;
-  box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 2px 9px 1px rgba(0, 0, 0, 0.12), 0 4px 2px -2px rgba(0, 0, 0, 0.2);
-  padding: 10px 10px 0 0;
+  font-size: 1.5em;
+  /*
   will-change: transform;
   display: -webkit-box;
   display: -webkit-flex;
@@ -95,9 +101,32 @@ button {
   transition: -webkit-transform 0.233s cubic-bezier(0, 0, 0.21, 1) 0.1s;
   transition: transform 0.233s cubic-bezier(0, 0, 0.21, 1) 0.1s;
   transition: transform 0.233s cubic-bezier(0, 0, 0.21, 1) 0.1s, -webkit-transform 0.233s cubic-bezier(0, 0, 0.21, 1) 0.1s;
-  z-index: 1000;
+  */
+  z-index: 10;
 }
 
+.modeButton {
+    width:30%;
+    height:32px;
+    font-family: Sans-Serif;
+    font-style: bold;
+    font-size:1em;
+    border: none;
+}
+
+#editButton {
+    background-color: white;
+}
+
+#listButton {
+    background-color: silver;
+}
+
+#shopButton {
+    background-color: silver;
+}
+
+/*
 .header #menuButton{
     background: url(menuButton24px.svg) center center no-repeat;
     border: solid, 1px, red;
@@ -114,7 +143,9 @@ button {
       -ms-flex: 1;
           flex: 1;
 }
+*/
 
+/*
 #menu {
 	position: fixed;
 	top: 24px;
@@ -124,6 +155,39 @@ button {
 	background-color: #DDD;
 	font-size: 1.5em;
 	display: none;
+}
+*/
+#controls {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 32px;
+    display: none;
+}
+
+
+.controlButton {
+    width: 23%;
+    height: 32px;
+    font-size:1em;
+    background-color: white;
+    border: none;
+}
+
+#upButton {
+    background: url(upButton24px.svg) center center no-repeat;
+}
+
+#downButton {
+    background: url(downButton24px.svg) center center no-repeat;
+}
+
+#deleteButton {
+    background: url(deleteButton24px.svg) center center no-repeat;
+}
+
+#addButton {
+    background: url(addButton24px.svg) center center no-repeat;
 }
 
 .main {
@@ -152,11 +216,25 @@ button {
     position: relative;
 }
 
-list-item {
+.list-item {
 	width: 80%;
 	text-align: left;
 	font-size: 1.5em;
+	background-color: white;
 	display: block;
+}
+
+.list-item.selected {
+    background-color: silver;
+}
+
+#addDialog {
+    background-color: silver;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    z-index:100;
+    display: none;
 }
 
 .dialog-container {
@@ -166,15 +244,12 @@ list-item {
   top: 0;
   width: 100%;
   height: 100%;
-  opacity: 0;
+  display: none;
   pointer-events: none;
   will-change: opacity;
   -webkit-transition: opacity 0.333s cubic-bezier(0, 0, 0.21, 1);
   transition: opacity 0.333s cubic-bezier(0, 0, 0.21, 1); }
-
-.dialog-container--visible {
-  opacity: 1;
-  pointer-events: auto; }
+  z-index:100;
 
 .dialog {
   background: #DDD;
@@ -214,4 +289,6 @@ list-item {
 
 .button {
 	background-color: white;
+	font-family: Sans-Serif;
+	font-size: 1.5em;
 }
