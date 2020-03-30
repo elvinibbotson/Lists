@@ -318,6 +318,7 @@ function populateList() {
 	    case 'shop':
 	        id('shopButton').style.backgroundColor='white';
 	}
+	if(items.length<1) id('addDialog').style.display='block';
 	/*
 	items = [];
 	var dbTransaction = db.transaction('items',"readwrite");
