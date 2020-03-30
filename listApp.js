@@ -276,7 +276,7 @@ function showControls() {
   
 // POPULATE ITEMS LIST
 function populateList() {
-	console.log("populate item  - mode is "+mode);
+	alert("populate list - mode is "+mode+"; "+items.length+" items");
 	id('list').innerHTML=""; // clear list
 	var html="";
 	for(var i in items) {
@@ -390,8 +390,7 @@ request.onsuccess = function(event) {
 	    	cursor.continue();  
         }
     	else {
-    		console.log("No more entries!");
-    		console.log(items.length+" items");
+    		alert("No more entries - "+items.length+" items");
     		if(items.length<1) {
 			    console.log("initialise with first item - bread");
 			    items=[{text: 'bread', checked: false}];
