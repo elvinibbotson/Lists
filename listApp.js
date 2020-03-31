@@ -150,6 +150,26 @@ id("export").addEventListener('click', function() { // EXPORT FILE
 })
 */
 
+id('upButton').addEventListener('click', function() { // MOVE ITEM UP
+    console.log("move "+item.text+" up");
+    item={}; // temporary store for item to be moved
+    item.text=items[itemIndex].text;
+    item.checked=items[itemIndex].checked;
+    items.splice(itemIndex,1); // remove from original slot...
+    items.splice(itemIndex-1,0,item); // ...and insert a slot higher
+    populateList();
+})
+
+id('downButton').addEventListener('click', function() { // MOVE ITEM DOWN
+    console.log("move "+item.text+" down");
+    item={}; // temporary store for item to be moved
+    item.text=items[itemIndex].text;
+    item.checked=items[itemIndex].checked;
+    items.splice(itemIndex,1); // remove from original slot...
+    items.splice(itemIndex+1,0,item); // ...and insert a slot lower
+    populateList();
+})
+
 id('addButton').addEventListener('click', function() { // ADD BUTTON
     id('itemField').value="";
     id('addDialog').style.display='block';
