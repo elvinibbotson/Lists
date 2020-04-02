@@ -31,25 +31,6 @@
     </div>
 </main>
 
-<!--menu type="context" id="menu">
-    <p><menuitem id="editMode">edit</menuitem></p>
-    <p><menuitem id="listMode">list</menuitem></p>
-    <p><menuitem id="checkMode">check</menuitem></p>
-	<p><menuitem id="import">import</menuitem></p>
-	<p><menuitem id="export">export</menuitem></p>
-</menu-->
-  
-<!--div id="importDialog" class="dialog-container">
-	<div class="dialog">
-		<div class="dialog-title">Load from saved file</div>
-		<input type="file" id="fileChooser">
-		<div class="dialog-body">Imported data will replace any records you already have.</div>
-    		<div class="dialog-buttons">
-			<button id="buttonCancelImport" class="button">Cancel</button>
-    		</div>
-	</div>
-</div-->
-
 <div id='controls'>
     <button class='controlButton' id='upButton'></button>'
     <button class='controlButton' id='downButton'></button>'
@@ -58,16 +39,8 @@
     <!-- could use characters... up: &#x25B3; down: &#x25BD;  delete: &#x274C; -->
 </div>
 
-<!--div id="editControls" class="dialog-container">
-    <div class="dialog-title" id='itemText'>[item]</div>
-    <button class="controlButton" id="upButton">move up</button>
-    <button class="controlButton" id="downButton">move down</button>
-    <button class="controlButton" id="deleteButton">delete</button>
-    <button class="controlButton" id="addButton">add below</button>
-</div-->
-
 <div id="addDialog">
-	<div class="dialog-title">add item below</div>
+	<div class="dialog-title">insert above <span id='clue'></span></div>
 	<p><input type="text" id="itemField" size="10"/></p>
 	<div class="dialog-buttons">
 		<button id="cancelButton" class="button">Cancel</button>
@@ -76,7 +49,5 @@
 </div>
 
 <script src="listApp.js" async></script>
-
 </body>
-
 </html>

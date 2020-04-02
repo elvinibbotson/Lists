@@ -16,41 +16,49 @@ var mode=null;
 var lastSave=null;
 var months="JanFebMarAprMayJunJulAugSepOctNovDec";
 
-// EVENT LISTENERS
-
-id('editButton').addEventListener('click', function() { // EDIT MODE
+// EDIT MODE
+id('editButton').addEventListener('click', function() {
     setMode('edit');
 })
 
-id('listButton').addEventListener('click', function() { // LIST MODE
+// LIST MODE
+id('listButton').addEventListener('click', function() {
     setMode('list');
 })
 
-id('shopButton').addEventListener('click', function() { // SHOP MODE
+// SHOP MODE
+id('shopButton').addEventListener('click', function() {
     setMode('shop');
 })
 
+// SET MODE
 function setMode(m) {
     console.log("set mode to "+m);
     mode=m;
     window.localStorage.setItem('mode',mode); // remember mode
+    save();
+}
+
+// UPDATE DATABASE
+function save() {
+    console.log("SAVE");
     var request = window.indexedDB.open("listDB"); // update database
     request.onsuccess = function(event) {
-        console.log("request: "+request);
+        // console.log("request: "+request);
         db=event.target.result;
-        console.log("DB open");
+        // console.log("DB open");
         var dbTransaction = db.transaction('items',"readwrite");
-        console.log("indexedDB transaction ready");
+        // console.log("indexedDB transaction ready");
         var dbObjectStore = dbTransaction.objectStore('items');
-        console.log("indexedDB objectStore ready");
+        // console.log("indexedDB objectStore ready");
         var request=dbObjectStore.clear(); // clear database
         request.onsuccess=function(event) {
             for(var i in items) {
                 var request=dbObjectStore.add(items[i]); // update log in database
     		    request.onsuccess = function(event)  {
-    	    		console.log("item "+i+" added - "+items[i].text);
+    	    		// console.log("item "+i+" added - "+items[i].text);
     	    	};
-	    	    request.onerror = function(event) {console.log("error adding "+item.id);};
+	    	    request.onerror = function(event) {console.log("error adding "+items[i].text);};
 	        }
         }
         request.onerror = function(event) {console.log("error clearing database"+item);};
@@ -66,17 +74,20 @@ function setMode(m) {
 }
 
 /*	
-id("import").addEventListener('click', function() { // IMPORT OPTION
+// IMPORT OPTION
+id("import").addEventListener('click', function() {
     console.log("IMPORT");
 	id('importDialog').style.display='block';
 })
-	
-id('buttonCancelImport').addEventListener('click', function() { // CANCEL IMPORT DATA
+
+// CANCEL IMPORT DATA
+id('buttonCancelImport').addEventListener('click', function() {
 	id("menu").style.display="none";
 	id("menu").style.display="none";
 });
-  
-id("fileChooser").addEventListener('change', function() { // IMPORT FILE
+
+// IMPORT FILE
+id("fileChooser").addEventListener('change', function() {
 	var file = id('fileChooser').files[0];
 	console.log("file: "+file+" name: "+file.name);
 	var fileReader=new FileReader();
@@ -102,8 +113,9 @@ id("fileChooser").addEventListener('change', function() { // IMPORT FILE
   	});
   	fileReader.readAsText(file);
 });
-  
-id("export").addEventListener('click', function() { // EXPORT FILE
+
+// EXPORT FILE
+id("export").addEventListener('click', function() {
   	console.log("EXPORT");
 	var today= new Date();
 	var fileName = "listItems" + today.getDate();
@@ -150,7 +162,8 @@ id("export").addEventListener('click', function() { // EXPORT FILE
 })
 */
 
-id('upButton').addEventListener('click', function() { // MOVE ITEM UP
+// MOVE ITEM UP
+id('upButton').addEventListener('click', function() {
     console.log("move "+item.text+" up");
     item={}; // temporary store for item to be moved
     item.text=items[itemIndex].text;
@@ -160,7 +173,8 @@ id('upButton').addEventListener('click', function() { // MOVE ITEM UP
     populateList();
 })
 
-id('downButton').addEventListener('click', function() { // MOVE ITEM DOWN
+// MOVE ITEM DOWN
+id('downButton').addEventListener('click', function() {
     console.log("move "+item.text+" down");
     item={}; // temporary store for item to be moved
     item.text=items[itemIndex].text;
@@ -170,36 +184,42 @@ id('downButton').addEventListener('click', function() { // MOVE ITEM DOWN
     populateList();
 })
 
-id('addButton').addEventListener('click', function() { // ADD BUTTON
+// ADD BUTTON
+id('addButton').addEventListener('click', function() {
     id('itemField').value="";
+    id('clue').innerHTML=items[itemIndex].text;
     id('addDialog').style.display='block';
 })
 
-id('saveButton').addEventListener('click', function() { // INSERT NEW ITEM
+// INSERT NEW ITEM
+id('saveButton').addEventListener('click', function() {
     item={};
     item.checked=false;
     item.text=id('itemField').value;
     // check no items with this text
     console.log("check "+item.text+" is new");
     for(var i in items) {
-        console.log(i+": "+items[i].text);
+        // console.log(i+": "+items[i].text);
         if(items[i].text==item.text) alert('already exists');
     }
-	console.log('insert '+item.text+" after "+items[itemIndex].text);
-	items.splice(itemIndex+1,0,item);
+	console.log('insert '+item.text+" before "+items[itemIndex].text);
+	items.splice(itemIndex,0,item);
+	for(i in items) console.log(i+": "+items[i].text);
 	populateList();
 	currentListItem.style.backgroundColor='white';
 	id('addDialog').style.display='none';
 	id('controls').style.display='none';
 });
-  
-id('cancelButton').addEventListener('click', function() { // CANCEL ADD BELOW
+
+// CANCEL ADD
+id('cancelButton').addEventListener('click', function() {
     console.log("cancel add");
     id('addDialog').style.display='none';
     id('controls').style.display='none';
 })
 
-id('deleteButton').addEventListener('click', function() { // DELETE ITEM
+// DELETE ITEM
+id('deleteButton').addEventListener('click', function() {
     console.log("delete item "+itemIndex+" - "+items[itemIndex].text); // delete item
     items.splice(itemIndex,1);
     populateList();
@@ -261,6 +281,7 @@ function populateList() {
 	    case 'shop':
 	        id('shopButton').style.backgroundColor='white';
 	}
+	id('controls').style.display='none';
 	if(items.length<1) id('addDialog').style.display='block';
 }
 
@@ -269,7 +290,8 @@ console.log("STARTING");
 mode='edit'; // default/first use mode
 mode=window.localStorage.getItem('mode'); // recover last mode
 console.log("mode: "+mode);
-var request = window.indexedDB.open("listDB");
+window.setInterval(save,60000); // save changes to database every minute
+var request = window.indexedDB.open("listDB"); // open database and load items
 request.onsuccess = function(event) {
     console.log("request: "+request);
     db=event.target.result;

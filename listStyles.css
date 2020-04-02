@@ -39,7 +39,7 @@ body {
           align-content: stretch;
   background: "gray" }
  
-input {
+input[type=text] {
 	font-size: 1.2em;
 	height: 24px;
 	background-color: white;
@@ -62,7 +62,7 @@ button {
 	font-size: 1.5em;
 	vertical-align: bottom;
 	background-color: white;
-	border: 1px solid black;
+	border: none;
 }
  
 .header {
@@ -72,36 +72,6 @@ button {
   background-color: silver;
   position: fixed;
   font-size: 1.5em;
-  /*
-  will-change: transform;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: row;
-      -ms-flex-direction: row;
-          flex-direction: row;
-  -webkit-flex-wrap: nowrap;
-      -ms-flex-wrap: nowrap;
-          flex-wrap: nowrap;
-  -webkit-box-pack: start;
-  -webkit-justify-content: flex-start;
-      -ms-flex-pack: start;
-          justify-content: flex-start;
-  -webkit-box-align: stretch;
-  -webkit-align-items: stretch;
-      -ms-flex-align: stretch;
-          align-items: stretch;
-  -webkit-align-content: center;
-      -ms-flex-line-pack: center;
-          align-content: center;
-  -webkit-transition: -webkit-transform 0.233s cubic-bezier(0, 0, 0.21, 1) 0.1s;
-  transition: -webkit-transform 0.233s cubic-bezier(0, 0, 0.21, 1) 0.1s;
-  transition: transform 0.233s cubic-bezier(0, 0, 0.21, 1) 0.1s;
-  transition: transform 0.233s cubic-bezier(0, 0, 0.21, 1) 0.1s, -webkit-transform 0.233s cubic-bezier(0, 0, 0.21, 1) 0.1s;
-  */
   z-index: 10;
 }
 
@@ -126,37 +96,6 @@ button {
     background-color: silver;
 }
 
-/*
-.header #menuButton{
-    background: url(menuButton24px.svg) center center no-repeat;
-    border: solid, 1px, red;
-}
-
-.header__title {
-  font-weight: 400;
-  font-size: 1em;
-  border: solid, 1px;
-  background-color: blue;
-  margin: 0;
-  -webkit-box-flex: 1;
-  -webkit-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
-}
-*/
-
-/*
-#menu {
-	position: fixed;
-	top: 24px;
-	left: 0;
-	padding-left: 20px;
-	padding-right: 20px;
-	background-color: #DDD;
-	font-size: 1.5em;
-	display: none;
-}
-*/
 #controls {
     position: fixed;
     bottom: 0;
@@ -164,7 +103,6 @@ button {
     height: 32px;
     display: none;
 }
-
 
 .controlButton {
     width: 23%;
@@ -269,6 +207,7 @@ button {
   padding-right: 24px; }
 
 .dialog-title {
+  padding-left: 20px;
   padding-top: 20px;
   font-size: 1em;
   font-weight: bold;
@@ -284,11 +223,19 @@ button {
 }
 .dialog-buttons {
   padding: 8px !important;
-  float: right;
+  /* float: right; */
 }
 
 .button {
 	background-color: white;
 	font-family: Sans-Serif;
 	font-size: 1.5em;
+}
+
+#cancelButton {
+    float; left;
+}
+
+#saveButton {
+    float: right;
 }
