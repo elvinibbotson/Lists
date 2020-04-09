@@ -39,129 +39,6 @@ function setMode(m) {
     save();
 }
 
-// UPDATE DATABASE
-function save() {
-    console.log("SAVE");
-    var request = window.indexedDB.open("listDB"); // update database
-    request.onsuccess = function(event) {
-        // console.log("request: "+request);
-        db=event.target.result;
-        // console.log("DB open");
-        var dbTransaction = db.transaction('items',"readwrite");
-        // console.log("indexedDB transaction ready");
-        var dbObjectStore = dbTransaction.objectStore('items');
-        // console.log("indexedDB objectStore ready");
-        var request=dbObjectStore.clear(); // clear database
-        request.onsuccess=function(event) {
-            for(var i in items) {
-                var request=dbObjectStore.add(items[i]); // update log in database
-    		    request.onsuccess = function(event)  {
-    	    		// console.log("item "+i+" added - "+items[i].text);
-    	    	};
-	    	    request.onerror = function(event) {console.log("error adding "+items[i].text);};
-	        }
-        }
-        request.onerror = function(event) {console.log("error clearing database"+item);};
-	    populateList(); // rebuild list for new mode
-    }
-    request.onupgradeneeded = function(event) {
-	    var dbObjectStore = event.currentTarget.result.createObjectStore("items", { keyPath: "id", autoIncrement: true });
-        console.log("new items ObjectStore created");
-    };
-    request.onerror = function(event) {
-	    alert("indexedDB error");
-    };
-}
-
-/*	
-// IMPORT OPTION
-id("import").addEventListener('click', function() {
-    console.log("IMPORT");
-	id('importDialog').style.display='block';
-})
-
-// CANCEL IMPORT DATA
-id('buttonCancelImport').addEventListener('click', function() {
-	id("menu").style.display="none";
-	id("menu").style.display="none";
-});
-
-// IMPORT FILE
-id("fileChooser").addEventListener('change', function() {
-	var file = id('fileChooser').files[0];
-	console.log("file: "+file+" name: "+file.name);
-	var fileReader=new FileReader();
-	fileReader.addEventListener('load', function(evt) {
-		console.log("file read: "+evt.target.result);
-	  	var data=evt.target.result;
-		var json=JSON.parse(data);
-		console.log("json: "+json);
-		var logs=json.logs;
-		console.log(logs.length+" logs loaded");
-		var dbTransaction = app.db.transaction('logs',"readwrite");
-		var dbObjectStore = dbTransaction.objectStore('logs');
-		for(var i=0;i<logs.length;i++) {
-			console.log("add "+logs[i].text);
-			var request = dbObjectStore.add(logs[i]);
-			request.onsuccess = function(e) {
-				console.log(logs.length+" logs added to database");
-			};
-			request.onerror = function(e) {console.log("error adding log");};
-		}
-		app.toggleDialog('importDialog',false);
-		alert("logs imported - restart");
-  	});
-  	fileReader.readAsText(file);
-});
-
-// EXPORT FILE
-id("export").addEventListener('click', function() {
-  	console.log("EXPORT");
-	var today= new Date();
-	var fileName = "listItems" + today.getDate();
-	var n = today.getMonth();
-	fileName += months.substr(n*3,3);
-	n = today.getFullYear() % 100;
-	if(n<10) fileName+="0";
-	fileName += n + ".json";
-	var dbTransaction = db.transaction('items',"readwrite");
-	console.log("indexedDB transaction ready");
-	var dbObjectStore = dbTransaction.objectStore('items');
-	console.log("indexedDB objectStore ready");
-	var request = dbObjectStore.openCursor();
-	var items=[];
-	dbTransaction = db.transaction('items',"readwrite");
-	console.log("indexedDB transaction ready");
-	dbObjectStore = dbTransaction.objectStore('items');
-	console.log("indexedDB objectStore ready");
-	request = dbObjectStore.openCursor();
-	request.onsuccess = function(event) {  
-		var cursor = event.target.result;  
-    		if (cursor) {
-			    items.push(cursor.value);
-			    // console.log("log "+cursor.value.id+", date: "+cursor.value.date+", "+cursor.value.text);
-			    cursor.continue();  
-    		}
-		else {
-			console.log(items.length+" items - save");
-			var data={'items': items};
-			var json=JSON.stringify(data);
-			var blob = new Blob([json], {type:"data:application/json"});
-  			var a =document.createElement('a');
-			a.style.display='none';
-    		var url = window.URL.createObjectURL(blob);
-			console.log("data ready to save: "+blob.size+" bytes");
-   			a.href= url;
-   			a.download = fileName;
-    		document.body.appendChild(a);
-    		a.click();
-			alert(fileName+" saved to downloads folder");
-			document.getElementById("menu").style.display="none";
-		}
-	}
-})
-*/
-
 // MOVE ITEM UP
 id('upButton').addEventListener('click', function() {
     console.log("move "+item.text+" up");
@@ -283,13 +160,127 @@ function populateList() {
 	}
 	id('controls').style.display='none';
 	if(items.length<1) id('addDialog').style.display='block';
+	var today=new Date();
+	if(today.getMonth()!=lastSave) backup(); // backup every month
+}
+
+// UPDATE DATABASE
+function save() {
+    console.log("SAVE");
+    var request = window.indexedDB.open("listDB"); // update database
+    request.onsuccess = function(event) {
+        // console.log("request: "+request);
+        db=event.target.result;
+        // console.log("DB open");
+        var dbTransaction = db.transaction('items',"readwrite");
+        // console.log("indexedDB transaction ready");
+        var dbObjectStore = dbTransaction.objectStore('items');
+        // console.log("indexedDB objectStore ready");
+        var request=dbObjectStore.clear(); // clear database
+        request.onsuccess=function(event) {
+            for(var i in items) {
+                var request=dbObjectStore.add(items[i]); // update log in database
+    		    request.onsuccess = function(event)  {
+    	    		// console.log("item "+i+" added - "+items[i].text);
+    	    	};
+	    	    request.onerror = function(event) {console.log("error adding "+items[i].text);};
+	        }
+        }
+        request.onerror = function(event) {console.log("error clearing database"+item);};
+	    populateList(); // rebuild list for new mode
+    }
+    request.onupgradeneeded = function(event) {
+	    var dbObjectStore = event.currentTarget.result.createObjectStore("items", { keyPath: "id", autoIncrement: true });
+        console.log("new items ObjectStore created");
+    };
+    request.onerror = function(event) {
+	    alert("indexedDB error");
+    };
+}
+
+// RESTORE BACKUP
+id("fileChooser").addEventListener('change', function() {
+	var file=id('fileChooser').files[0];
+	console.log("file: "+file+" name: "+file.name);
+	var fileReader=new FileReader();
+	fileReader.addEventListener('load', function(evt) {
+		console.log("file read: "+evt.target.result);
+	  	var data=evt.target.result;
+		var json=JSON.parse(data);
+		console.log("json: "+json);
+		var items=json.items;
+		console.log(items.length+" items loaded");
+		var dbTransaction=db.transaction('items',"readwrite");
+		var dbObjectStore=dbTransaction.objectStore('items');
+		for(var i=0;i<items.length;i++) {
+			console.log("add "+items[i].text);
+			var request=dbObjectStore.add(items[i]);
+			request.onsuccess=function(e) {
+				console.log(items.length+" items added to database");
+			};
+			request.onerror=function(e) {console.log("error adding item");};
+		}
+		id('importDialog').style.display='none';
+		alert("backup imported - restart");
+  	});
+  	fileReader.readAsText(file);
+});
+
+// CANCEL RESTORE
+id('buttonCancelImport').addEventListener('click', function() {
+	id("menu").style.display="none";
+	id("menu").style.display="none";
+});
+
+// BACKUP
+function backup() {
+  	console.log("EXPORT");
+	var fileName="list.json";
+	var dbTransaction=db.transaction('items',"readwrite");
+	console.log("indexedDB transaction ready");
+	var dbObjectStore=dbTransaction.objectStore('items');
+	console.log("indexedDB objectStore ready");
+	var request=dbObjectStore.openCursor();
+	var items=[];
+	dbTransaction=db.transaction('items',"readwrite");
+	console.log("indexedDB transaction ready");
+	dbObjectStore=dbTransaction.objectStore('items');
+	console.log("indexedDB objectStore ready");
+	request=dbObjectStore.openCursor();
+	request.onsuccess=function(event) {  
+		var cursor=event.target.result;  
+    		if(cursor) {
+			    items.push(cursor.value);
+			    // console.log("log "+cursor.value.id+", date: "+cursor.value.date+", "+cursor.value.text);
+			    cursor.continue();  
+    		}
+		else {
+			console.log(items.length+" items - save");
+			var data={'items': items};
+			var json=JSON.stringify(data);
+			var blob=new Blob([json], {type:"data:application/json"});
+  			var a=document.createElement('a');
+			a.style.display='none';
+    		var url=window.URL.createObjectURL(blob);
+			console.log("data ready to save: "+blob.size+" bytes");
+   			a.href=url;
+   			a.download=fileName;
+    		document.body.appendChild(a);
+    		a.click();
+			alert(fileName+" saved to downloads folder");
+			var today=new Date();
+			lastSave=today.getMonth();
+			window.localStorage.setItem('lastSave',lastSave); // remember month of backup
+		}
+	}
 }
 
 // START-UP CODE
 console.log("STARTING");
 mode='edit'; // default/first use mode
-mode=window.localStorage.getItem('mode'); // recover last mode
-console.log("mode: "+mode);
+mode=window.localStorage.getItem('mode'); // recover last mode...
+lastSave=window.localStorage.getItem('lastSave'); // ...and month of last backup
+console.log("mode: "+mode+"; lastSave: "+lastSave);
 window.setInterval(save,60000); // save changes to database every minute
 var request = window.indexedDB.open("listDB"); // open database and load items
 request.onsuccess = function(event) {
@@ -303,7 +294,7 @@ request.onsuccess = function(event) {
     // code to read items from database
     items=[];
     console.log("items array ready");
-    var request = dbObjectStore.openCursor();
+    var request=dbObjectStore.openCursor();
     request.onsuccess = function(event) {  
 	    var cursor = event.target.result;  
         if (cursor) {
@@ -316,6 +307,7 @@ request.onsuccess = function(event) {
     		if(items.length<1) {
 			    console.log("initialise with first item - bread");
 			    items=[{text: 'bread', checked: false}];
+			    id('importDialog').style.display='block'; // offer to restore from backup
 			}
     		console.log('build list');
     	    populateList();
