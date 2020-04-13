@@ -56,8 +56,14 @@ id('downButton').addEventListener('click', function() {
     item={}; // temporary store for item to be moved
     item.text=items[itemIndex].text;
     item.checked=items[itemIndex].checked;
+    /* this method ends up shifting item to end of array!!!
     items.splice(itemIndex,1); // remove from original slot...
     items.splice(itemIndex+1,0,item); // ...and insert a slot lower
+    so try this....*/
+    items[itemIndex].text=items[itemIndex+1].text;
+    items[itemIndex].checked=items[itemIndex+1].checked;
+    items[itemIndex+1].text=item.text;
+    items[itemIndex+1].checked=item.checked;
     populateList();
 })
 
