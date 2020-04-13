@@ -9,7 +9,7 @@ function id(el) {
 var db=null;
 var items=[];
 var item=null;
-var itemIndex=null;
+var itemIndex=0;
 var listName='List';
 var currentListItem=null;
 var mode=null;
@@ -42,29 +42,21 @@ function setMode(m) {
 // MOVE ITEM UP
 id('upButton').addEventListener('click', function() {
     console.log("move "+item.text+" up");
-    item={}; // temporary store for item to be moved
-    item.text=items[itemIndex].text;
-    item.checked=items[itemIndex].checked;
     items.splice(itemIndex,1); // remove from original slot...
     items.splice(itemIndex-1,0,item); // ...and insert a slot higher
     populateList();
+    itemIndex--;
+    showControls();
 })
 
 // MOVE ITEM DOWN
 id('downButton').addEventListener('click', function() {
-    console.log("move "+item.text+" down");
-    item={}; // temporary store for item to be moved
-    item.text=items[itemIndex].text;
-    item.checked=items[itemIndex].checked;
-    /* this method ends up shifting item to end of array!!!
+    console.log("move "+item.text+" down below item "+(itemIndex+1));
     items.splice(itemIndex,1); // remove from original slot...
     items.splice(itemIndex+1,0,item); // ...and insert a slot lower
-    so try this....*/
-    items[itemIndex].text=items[itemIndex+1].text;
-    items[itemIndex].checked=items[itemIndex+1].checked;
-    items[itemIndex+1].text=item.text;
-    items[itemIndex+1].checked=item.checked;
     populateList();
+    itemIndex++;
+    showControls();
 })
 
 // ADD BUTTON
@@ -111,7 +103,7 @@ id('deleteButton').addEventListener('click', function() {
 
 // EDIT SELECTED ITEM
 function showControls() {
-	console.log("edit item: "+itemIndex);
+    itemIndex=parseInt(itemIndex);
 	item=items[itemIndex];
 	console.log("edit item: "+itemIndex+" - "+item.text);
 	if(currentListItem) currentListItem.style.backgroundColor='white'; // deselect any previously selected item
@@ -146,10 +138,10 @@ function populateList() {
 	 	        });
 	 	}
 		html+=items[i].text+"<br>";
-		console.log("item html: "+html);
+		// console.log("item html: "+html);
 		listItem.innerHTML=html;
 		id('list').appendChild(listItem);
-		console.log("list item "+i+": "+items[i].text);
+		// console.log("list item "+i+": "+items[i].text);
 	}
 	id('editButton').style.backgroundColor='silver';
 	id('listButton').style.backgroundColor='silver';
@@ -234,8 +226,7 @@ id("fileChooser").addEventListener('change', function() {
 
 // CANCEL RESTORE
 id('buttonCancelImport').addEventListener('click', function() {
-	id("menu").style.display="none";
-	id("menu").style.display="none";
+    id('importDialog').style.display='none';
 });
 
 // BACKUP
@@ -303,7 +294,7 @@ request.onsuccess = function(event) {
     var request=dbObjectStore.openCursor();
     request.onsuccess = function(event) {  
 	    var cursor = event.target.result;  
-        if (cursor) {
+        if(cursor) {
     		items.push(cursor.value);
     		console.log("item: "+cursor.value.text+"/"+cursor.value.checked);
 	    	cursor.continue();  
