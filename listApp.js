@@ -313,7 +313,7 @@ var request = window.indexedDB.open("listDB",3); // open database and load items
 request.onsuccess = function(event) {
     console.log("request: "+request);
     db=event.target.result;
-    console.log("DB open");
+    alert("DB open - version "+db.version);
     var dbTransaction = db.transaction('items',"readwrite");
     console.log("indexedDB transaction ready");
     var dbObjectStore = dbTransaction.objectStore('items');
