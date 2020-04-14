@@ -26,16 +26,12 @@ id('main').addEventListener('touchstart', function(event) {
 })
 
 id('main').addEventListener('touchend', function(event) {
-    // console.log(evt.changedTouches.length+" touches");
-    // dragEnd=evt.changedTouches[0].clientX;
-    // console.log("end drag at "+dragEnd);
     var drag=dragStart-event.changedTouches[0].clientX;
-    console.log("dragged "+drag);
-    if(drag<-20) { // drag right
+    if(drag<-50) { // drag right
         if(mode=='list') setMode('edit');
         else if(mode=='shop') setMode('list');
     }
-    else if(drag>20) {  // drag left
+    else if(drag>50) {  // drag left
         if(mode=='edit') setMode('list');
         else if(mode=='list') setMode('shop');
     }
@@ -308,7 +304,7 @@ if(mode==null) mode='edit';
 lastSave=window.localStorage.getItem('lastSave'); // ...and month of last backup
 console.log("mode: "+mode+"; lastSave: "+lastSave);
 window.setInterval(save,60000); // save changes to database every minute
-var request = window.indexedDB.open("listDB"); // open database and load items
+var request = window.indexedDB.open("listDB",1); // open database and load items
 request.onsuccess = function(event) {
     console.log("request: "+request);
     db=event.target.result;
