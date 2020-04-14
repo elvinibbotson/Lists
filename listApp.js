@@ -15,23 +15,28 @@ var currentListItem=null;
 var mode='edit';
 var lastSave=null;
 var months="JanFebMarAprMayJunJulAugSepOctNovDec";
-var dragStart=0;
+var dragStart={};
 // var dragEnd=0;
 
 // DRAG TO CHANGE MODE
 id('main').addEventListener('touchstart', function(event) {
-    // console.log(event.changedTouches.length+" touches");
-    dragStart=event.changedTouches[0].clientX;
-    // console.log('start drag at '+dragStart);
+    console.log(event.changedTouches.length+" touches");
+    dragStart.x=event.changedTouches[0].clientX;
+    dragStart.y=event.changedTouches[0].clientY;
+    console.log('start drag at '+dragStart.x+','+dragStart.y);
 })
 
 id('main').addEventListener('touchend', function(event) {
-    var drag=dragStart-event.changedTouches[0].clientX;
-    if(drag<-50) { // drag right
+    var drag={};
+    drag.x=dragStart.x-event.changedTouches[0].clientX;
+    drag.y=dragStart.y-event.changedTouches[0].clientY;
+    console.log('drag '+drag.x+','+drag.y);
+    if(Math.abs(drag.y)>50) return; // ignore vertical drags
+    if(drag.x<-50) { // drag right
         if(mode=='list') setMode('edit');
         else if(mode=='shop') setMode('list');
     }
-    else if(drag>50) {  // drag left
+    else if(drag.x>50) {  // drag left
         if(mode=='edit') setMode('list');
         else if(mode=='list') setMode('shop');
     }
@@ -304,7 +309,7 @@ if(mode==null) mode='edit';
 lastSave=window.localStorage.getItem('lastSave'); // ...and month of last backup
 console.log("mode: "+mode+"; lastSave: "+lastSave);
 window.setInterval(save,60000); // save changes to database every minute
-var request = window.indexedDB.open("listDB",1); // open database and load items
+var request = window.indexedDB.open("listDB",3); // open database and load items
 request.onsuccess = function(event) {
     console.log("request: "+request);
     db=event.target.result;
