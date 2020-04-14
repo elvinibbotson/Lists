@@ -12,11 +12,36 @@ var item=null;
 var itemIndex=0;
 var listName='List';
 var currentListItem=null;
-var mode=null;
+var mode='edit';
 var lastSave=null;
 var months="JanFebMarAprMayJunJulAugSepOctNovDec";
+var dragStart=0;
+// var dragEnd=0;
 
-// EDIT MODE
+// DRAG TO CHANGE MODE
+id('main').addEventListener('touchstart', function(event) {
+    // console.log(event.changedTouches.length+" touches");
+    dragStart=event.changedTouches[0].clientX;
+    // console.log('start drag at '+dragStart);
+})
+
+id('main').addEventListener('touchend', function(event) {
+    // console.log(evt.changedTouches.length+" touches");
+    // dragEnd=evt.changedTouches[0].clientX;
+    // console.log("end drag at "+dragEnd);
+    var drag=dragStart-event.changedTouches[0].clientX;
+    console.log("dragged "+drag);
+    if(drag<-20) { // drag right
+        if(mode=='list') setMode('edit');
+        else if(mode=='shop') setMode('list');
+    }
+    else if(drag>20) {  // drag left
+        if(mode=='edit') setMode('list');
+        else if(mode=='list') setMode('shop');
+    }
+})
+
+/* EDIT MODE
 id('editButton').addEventListener('click', function() {
     setMode('edit');
 })
@@ -30,6 +55,7 @@ id('listButton').addEventListener('click', function() {
 id('shopButton').addEventListener('click', function() {
     setMode('shop');
 })
+*/
 
 // SET MODE
 function setMode(m) {
@@ -118,7 +144,7 @@ function populateList() {
 	id('list').innerHTML=""; // clear list
 	var html="";
 	for(var i in items) {
-	    console.log("list item "+i+" "+items[i].text+" checked:"+items[i].checked);
+	    // console.log("list item "+i+" "+items[i].text+" checked:"+items[i].checked);
 	    if((mode=='shop')&&(!items[i].checked)) continue;
 	    var listItem = document.createElement('li');
 		listItem.index=i;
@@ -177,8 +203,10 @@ function save() {
         var request=dbObjectStore.clear(); // clear database
         request.onsuccess=function(event) {
             for(var i in items) {
+                items[i].id=i;
                 var request=dbObjectStore.add(items[i]); // update log in database
-    		    request.onsuccess = function(event)  {
+                console.log(i+": "+items[i].text);
+    		    request.onsuccess=function(event)  {
     	    		// console.log("item "+i+" added - "+items[i].text);
     	    	};
 	    	    request.onerror = function(event) {console.log("error adding "+items[i].text);};
@@ -211,6 +239,7 @@ id("fileChooser").addEventListener('change', function() {
 		var dbTransaction=db.transaction('items',"readwrite");
 		var dbObjectStore=dbTransaction.objectStore('items');
 		for(var i=0;i<items.length;i++) {
+		    items[i].id=i;
 			console.log("add "+items[i].text);
 			var request=dbObjectStore.add(items[i]);
 			request.onsuccess=function(e) {
@@ -274,8 +303,8 @@ function backup() {
 
 // START-UP CODE
 console.log("STARTING");
-mode='edit'; // default/first use mode
 mode=window.localStorage.getItem('mode'); // recover last mode...
+if(mode==null) mode='edit';
 lastSave=window.localStorage.getItem('lastSave'); // ...and month of last backup
 console.log("mode: "+mode+"; lastSave: "+lastSave);
 window.setInterval(save,60000); // save changes to database every minute
@@ -296,7 +325,7 @@ request.onsuccess = function(event) {
 	    var cursor = event.target.result;  
         if(cursor) {
     		items.push(cursor.value);
-    		console.log("item: "+cursor.value.text+"/"+cursor.value.checked);
+    		// console.log("item: "+cursor.value.text+"/"+cursor.value.checked);
 	    	cursor.continue();  
         }
     	else {
@@ -306,13 +335,21 @@ request.onsuccess = function(event) {
 			    items=[{text: 'bread', checked: false}];
 			    id('importDialog').style.display='block'; // offer to restore from backup
 			}
+			else {
+			    for(var i in items) {
+			        console.log(i+": "+items[i].text);
+			    }
+			}
     		console.log('build list');
     	    populateList();
 	    }
     }
 }
 request.onupgradeneeded = function(event) {
-	var dbObjectStore = event.currentTarget.result.createObjectStore("items", { keyPath: "id", autoIncrement: true });
+    event.currentTarget.result.deleteObjectStore("items");
+    console.log("***CREATE NEW ITEMS OBJECT STORE***");
+    var dbObjectStore=event.currentTarget.result.createObjectStore("items",{keyPath:'id'});
+	// var dbObjectStore = event.currentTarget.result.createObjectStore("items", { keyPath: "id", autoIncrement: true });
     console.log("new items ObjectStore created");
 };
 request.onerror = function(event) {
