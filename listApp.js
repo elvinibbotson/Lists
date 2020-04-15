@@ -309,11 +309,11 @@ if(mode==null) mode='edit';
 lastSave=window.localStorage.getItem('lastSave'); // ...and month of last backup
 console.log("mode: "+mode+"; lastSave: "+lastSave);
 window.setInterval(save,60000); // save changes to database every minute
-var request = window.indexedDB.open("listDB",3); // open database and load items
+var request = window.indexedDB.open("listDB",4); // open database and load items
 request.onsuccess = function(event) {
     console.log("request: "+request);
     db=event.target.result;
-    alert("DB open - version "+db.version);
+    console.log("DB open - version "+db.version);
     var dbTransaction = db.transaction('items',"readwrite");
     console.log("indexedDB transaction ready");
     var dbObjectStore = dbTransaction.objectStore('items');
@@ -351,7 +351,7 @@ request.onupgradeneeded = function(event) {
     console.log("***CREATE NEW ITEMS OBJECT STORE***");
     var dbObjectStore=event.currentTarget.result.createObjectStore("items",{keyPath:'id'});
 	// var dbObjectStore = event.currentTarget.result.createObjectStore("items", { keyPath: "id", autoIncrement: true });
-    console.log("new items ObjectStore created");
+    alert("new items ObjectStore created");
 };
 request.onerror = function(event) {
 	alert("indexedDB error");
