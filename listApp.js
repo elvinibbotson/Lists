@@ -45,7 +45,7 @@ id('main').addEventListener('touchend', function(event) {
 
 // SET MODE
 function setMode(m) {
-    console.log("set mode to "+m);
+    alert("set mode to "+m);
     mode=m;
     window.localStorage.setItem('mode',mode); // remember mode
     save();
@@ -175,17 +175,9 @@ function populateList() {
 	 	listItem.appendChild(itemText);
 		id('list').appendChild(listItem);
 	}
+	alert(items.length+" items - mode: "+mode);
 	id('listTab').style.backgroundColor=(mode=='list')?'white':'silver';
     id('shopTab').style.backgroundColor=(mode=='list')?'silver':'white';
-    /*
-	switch(mode) {
-	    case 'list':
-	        id('listTab').style.backgroundColor='white';
-	        break;
-	    case 'shop':
-	        id('shopTab').style.backgroundColor='white';
-	}
-	*/
 	id('controls').style.display='none';
 	if(items.length<1) id('addDialog').style.display='block';
 	var today=new Date();
@@ -306,7 +298,7 @@ console.log("STARTING");
 mode=window.localStorage.getItem('mode'); // recover last mode...
 if(mode==null) mode='list';
 lastSave=window.localStorage.getItem('lastSave'); // ...and month of last backup
-console.log("mode: "+mode+"; lastSave: "+lastSave);
+alert("mode: "+mode+"; lastSave: "+lastSave);
 window.setInterval(save,60000); // save changes to database every minute
 var request = window.indexedDB.open("listDB",4); // open database and load items
 request.onsuccess = function(event) {
