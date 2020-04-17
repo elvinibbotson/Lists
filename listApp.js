@@ -1,5 +1,4 @@
 function id(el) {
-	// console.log("return element whose id is "+el);
 	return document.getElementById(el);
 }
 
@@ -12,7 +11,7 @@ var item=null;
 var itemIndex=0;
 var listName='List';
 var currentListItem=null;
-var mode='edit';
+var mode='list';
 var lastSave=null;
 var months="JanFebMarAprMayJunJulAugSepOctNovDec";
 var dragStart={};
@@ -20,43 +19,29 @@ var dragStart={};
 
 // DRAG TO CHANGE MODE
 id('main').addEventListener('touchstart', function(event) {
-    console.log(event.changedTouches.length+" touches");
+    // console.log(event.changedTouches.length+" touches");
     dragStart.x=event.changedTouches[0].clientX;
     dragStart.y=event.changedTouches[0].clientY;
-    console.log('start drag at '+dragStart.x+','+dragStart.y);
+    // console.log('start drag at '+dragStart.x+','+dragStart.y);
 })
 
 id('main').addEventListener('touchend', function(event) {
     var drag={};
     drag.x=dragStart.x-event.changedTouches[0].clientX;
     drag.y=dragStart.y-event.changedTouches[0].clientY;
-    console.log('drag '+drag.x+','+drag.y);
+    // console.log('drag '+drag.x+','+drag.y);
     if(Math.abs(drag.y)>50) return; // ignore vertical drags
     if(drag.x<-50) { // drag right
-        if(mode=='list') setMode('edit');
-        else if(mode=='shop') setMode('list');
+        // if(mode=='list') setMode('edit');
+        // else 
+        if(mode=='shop') setMode('list');
     }
     else if(drag.x>50) {  // drag left
-        if(mode=='edit') setMode('list');
-        else if(mode=='list') setMode('shop');
+        // if(mode=='edit') setMode('list');
+        // else 
+        if(mode=='list') setMode('shop');
     }
 })
-
-/* EDIT MODE
-id('editButton').addEventListener('click', function() {
-    setMode('edit');
-})
-
-// LIST MODE
-id('listButton').addEventListener('click', function() {
-    setMode('list');
-})
-
-// SHOP MODE
-id('shopButton').addEventListener('click', function() {
-    setMode('shop');
-})
-*/
 
 // SET MODE
 function setMode(m) {
@@ -128,61 +113,79 @@ id('deleteButton').addEventListener('click', function() {
     id('controls').style.display='none';
 })
 
-// EDIT SELECTED ITEM
+// MORE DETAIL
+id('moreButton').addEventListener('click', function() {
+    console.log("more...");
+    id('moreField').value=(items[itemIndex].more)?items[itemIndex].more:'';
+    id('moreDialog').style.display='block';
+})
+
+// UPDATE DETAIL
+id('okButton').addEventListener('click', function() {
+    items[itemIndex].more=id('moreField').value;
+    id('moreDialog').style.display='none';
+    populateList();
+})
+
+// SHOW CONTROLS FOR EDITING
 function showControls() {
     itemIndex=parseInt(itemIndex);
 	item=items[itemIndex];
 	console.log("edit item: "+itemIndex+" - "+item.text);
 	if(currentListItem) currentListItem.style.backgroundColor='white'; // deselect any previously selected item
-	currentListItem=id('list').children[itemIndex];
-	currentListItem.style.backgroundColor='yellow'; // highlight new selection
-	id('controls').style.display='block';
+	if(currentListItem==id('list').children[itemIndex]) {
+	    console.log("DESELECT");
+	    id('controls').style.display='none';
+	    currentListItem=null;
+	}
+	else {
+	    currentListItem=id('list').children[itemIndex];
+	    currentListItem.style.backgroundColor='yellow'; // highlight new selection
+	    id('controls').style.display='block';
+	}
+	
 }
   
 // POPULATE ITEMS LIST
 function populateList() {
-	console.log("populate list - mode is "+mode+"; "+items.length+" items");
+	// console.log("populate list - mode is "+mode+"; "+items.length+" items");
 	id('list').innerHTML=""; // clear list
-	var html="";
 	for(var i in items) {
-	    // console.log("list item "+i+" "+items[i].text+" checked:"+items[i].checked);
 	    if((mode=='shop')&&(!items[i].checked)) continue;
-	    var listItem = document.createElement('li');
-		listItem.index=i;
+	    var listItem=document.createElement('li');
 	 	listItem.classList.add('list-item');
-	 	html=""
-	 	switch(mode) {
-	 	    case 'edit':
-	 	        listItem.addEventListener('click', function(){itemIndex=this.index; showControls();});
-	 	        break;
-	 	    default:
-	 	        html="<input type='checkbox'";
-	 	        if((mode=='list')&&(items[i].checked)) html+=" checked>";
-	 	        else html+=">";
-	 	        listItem.addEventListener('click', function(){
-	 	            items[this.index].checked=!items[this.index].checked;
-	 	            console.log("checked: "+items[this.index].checked);
-	 	        });
-	 	}
-		html+=items[i].text+"<br>";
-		// console.log("item html: "+html);
-		listItem.innerHTML=html;
+	 	var itemBox=document.createElement('input');
+	 	itemBox.setAttribute('type','checkbox');
+	 	itemBox.index=i;
+	 	if(mode=='list') itemBox.checked=items[i].checked;
+	 	else itemBox.checked=false;
+	 	itemBox.addEventListener('change',function() { // toggle item .checked property
+	 	    items[this.index].checked=!items[this.index].checked;
+	 	    console.log(items[this.index].text+' checked: '+items[this.index].checked);
+	 	});
+	 	listItem.appendChild(itemBox);
+	 	var itemText=document.createElement('span');
+	 	itemText.index=i;
+	 	itemText.innerText=items[i].text;
+	 	if(items[i].more) itemText.innerText+=': '+items[i].more;
+	 	if(mode=='list') itemText.addEventListener('click',function() {
+	 	    itemIndex=this.index;
+	 	    showControls();
+	 	});
+	 	listItem.appendChild(itemText);
 		id('list').appendChild(listItem);
-		// console.log("list item "+i+": "+items[i].text);
 	}
-	id('editButton').style.backgroundColor='silver';
-	id('listButton').style.backgroundColor='silver';
-    id('shopButton').style.backgroundColor='silver';
+	id('listTab').style.backgroundColor=(mode=='list')?'white':'silver';
+    id('shopTab').style.backgroundColor=(mode=='list')?'silver':'white';
+    /*
 	switch(mode) {
-	    case 'edit':
-	        id('editButton').style.backgroundColor='white';
-	        break;
 	    case 'list':
-	        id('listButton').style.backgroundColor='white';
+	        id('listTab').style.backgroundColor='white';
 	        break;
 	    case 'shop':
-	        id('shopButton').style.backgroundColor='white';
+	        id('shopTab').style.backgroundColor='white';
 	}
+	*/
 	id('controls').style.display='none';
 	if(items.length<1) id('addDialog').style.display='block';
 	var today=new Date();
@@ -194,26 +197,22 @@ function save() {
     console.log("SAVE");
     var request = window.indexedDB.open("listDB"); // update database
     request.onsuccess = function(event) {
-        // console.log("request: "+request);
         db=event.target.result;
-        // console.log("DB open");
-        var dbTransaction = db.transaction('items',"readwrite");
-        // console.log("indexedDB transaction ready");
-        var dbObjectStore = dbTransaction.objectStore('items');
-        // console.log("indexedDB objectStore ready");
+        var dbTransaction=db.transaction('items',"readwrite");
+        var dbObjectStore=dbTransaction.objectStore('items');
         var request=dbObjectStore.clear(); // clear database
         request.onsuccess=function(event) {
             for(var i in items) {
                 items[i].id=i;
                 var request=dbObjectStore.add(items[i]); // update log in database
-                console.log(i+": "+items[i].text);
+                // console.log(i+": "+items[i].text);
     		    request.onsuccess=function(event)  {
     	    		// console.log("item "+i+" added - "+items[i].text);
     	    	};
 	    	    request.onerror = function(event) {console.log("error adding "+items[i].text);};
 	        }
         }
-        request.onerror = function(event) {console.log("error clearing database"+item);};
+        request.onerror=function(event) {console.log("error clearing database"+item);};
 	    populateList(); // rebuild list for new mode
     }
     request.onupgradeneeded = function(event) {
@@ -305,7 +304,7 @@ function backup() {
 // START-UP CODE
 console.log("STARTING");
 mode=window.localStorage.getItem('mode'); // recover last mode...
-if(mode==null) mode='edit';
+if(mode==null) mode='list';
 lastSave=window.localStorage.getItem('lastSave'); // ...and month of last backup
 console.log("mode: "+mode+"; lastSave: "+lastSave);
 window.setInterval(save,60000); // save changes to database every minute
@@ -338,7 +337,7 @@ request.onsuccess = function(event) {
 			}
 			else {
 			    for(var i in items) {
-			        console.log(i+": "+items[i].text);
+			        console.log(i+": "+items[i].text+' checked: '+items[i].checked);
 			    }
 			}
     		console.log('build list');
@@ -347,7 +346,7 @@ request.onsuccess = function(event) {
     }
 }
 request.onupgradeneeded = function(event) {
-    event.currentTarget.result.deleteObjectStore("items");
+    // event.currentTarget.result.deleteObjectStore("items");
     console.log("***CREATE NEW ITEMS OBJECT STORE***");
     var dbObjectStore=event.currentTarget.result.createObjectStore("items",{keyPath:'id'});
 	// var dbObjectStore = event.currentTarget.result.createObjectStore("items", { keyPath: "id", autoIncrement: true });

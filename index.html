@@ -16,11 +16,8 @@
 <body>
 
 <header class="header">
-	<!--button id="menuButton" type="menu" menu="menu" class="headerButton" aria-label="Menu"></button-->
-    <!--h1 id="heading" class="header__title">Items</h1-->
-    <button class='modeButton' id='editButton'>edit</button>
-    <button class='modeButton' id='listButton'>list</button>
-    <button class='modeButton' id='shopButton'>shop</button>
+    <div class='modeTab' id='listTab'>list</div>
+    <div class='modeTab' id='shopTab'>shop</div>
 </header>
 
 <main id="main" class="main">
@@ -36,6 +33,7 @@
     <button class='controlButton' id='downButton'></button>'
     <button class='controlButton' id='deleteButton'></button>'
     <button class='controlButton' id='addButton'></button>'
+    <button class='controlButton' id='moreButton'>...</button>'
     <!-- could use characters... up: &#x25B3; down: &#x25BD;  delete: &#x274C; -->
 </div>
 
@@ -46,6 +44,11 @@
 		<button id="cancelButton" class="button">Cancel</button>
 		<button id="saveButton" class="button">Add</button>
 	</div>
+</div>
+
+<div id='moreDialog'>
+    <div class="dialog-title">detail</div>
+	<p><input type="text" id="moreField" size="10"/><button id="okButton" class="button">OK</button></p>
 </div>
 
 <div id="importDialog" class="dialog">
