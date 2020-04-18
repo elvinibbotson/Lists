@@ -1,9 +1,7 @@
 function id(el) {
 	return document.getElementById(el);
 }
-
 'use strict';
-	
 // GLOBAL VARIABLES	
 var db=null;
 var items=[];
@@ -45,7 +43,7 @@ id('main').addEventListener('touchend', function(event) {
 
 // SET MODE
 function setMode(m) {
-    alert("set mode to "+m);
+    console.log("set mode to "+m);
     mode=m;
     window.localStorage.setItem('mode',mode); // remember mode
     save();
@@ -175,7 +173,7 @@ function populateList() {
 	 	listItem.appendChild(itemText);
 		id('list').appendChild(listItem);
 	}
-	alert(items.length+" items - mode: "+mode);
+	console.log(items.length+" items - mode: "+mode);
 	id('listTab').style.backgroundColor=(mode=='list')?'white':'silver';
     id('shopTab').style.backgroundColor=(mode=='list')?'silver':'white';
 	id('controls').style.display='none';
@@ -297,11 +295,8 @@ function backup() {
 console.log("STARTING");
 mode=window.localStorage.getItem('mode'); // recover last mode...
 if(mode==null) mode='list';
-
-mode='list';
-
 lastSave=window.localStorage.getItem('lastSave'); // ...and month of last backup
-alert("mode: "+mode+"; lastSave: "+lastSave);
+console.log("mode: "+mode+"; lastSave: "+lastSave);
 window.setInterval(save,60000); // save changes to database every minute
 var request = window.indexedDB.open("listDB",4); // open database and load items
 request.onsuccess = function(event) {
