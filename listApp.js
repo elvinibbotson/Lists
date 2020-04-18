@@ -297,6 +297,9 @@ function backup() {
 console.log("STARTING");
 mode=window.localStorage.getItem('mode'); // recover last mode...
 if(mode==null) mode='list';
+
+mode='list';
+
 lastSave=window.localStorage.getItem('lastSave'); // ...and month of last backup
 alert("mode: "+mode+"; lastSave: "+lastSave);
 window.setInterval(save,60000); // save changes to database every minute
