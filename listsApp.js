@@ -222,6 +222,7 @@ id('addButton').addEventListener('click',function() {
     }
     else {
         console.log('note');
+        item=null;
         id('noteField').value='';
         id('noteDialog').style.display='block';
     }
@@ -242,20 +243,27 @@ id('confirmAddButton').addEventListener('click',function() {
         item.type=3;
     }
     else { // *** set type to 0 for notes and 2 for checklist items
-        item.type=0;
+        item.type=(list.type==1)?0:2;
     }
     if(id('secureChoice').checked) item.type+=4;
     console.log("item type: "+item.type);
-    id('addItemField').value='';
     id('addDialog').style.display='none';
-    id('addItemDialog').style.display='block';
+    if(item.type<1) { // add note
+        id('noteField').value='';
+        id('noteDialog').style.display='block';
+    }
+    else { // list or checklist
+        id('addItemField').value='';
+        id('addItemDialog').style.display='block';
+    }
 })
+    
 
 function showAddItemDialog() {
     item={};
     item.owner=list.id;
     item.type=list.type-1;
-    id('additemField').value='';
+    id('addItemField').value='';
     id('addItemDialog').style.display='block';
 }
 
@@ -264,9 +272,6 @@ id('cancelAddItemButton').addEventListener('click',function() {
 })
 
 id('confirmAddItemButton').addEventListener('click',function() {
-    // item={};
-    // item.owner=list.id;
-    // item.type=list.type-1;
     if(item.type>3) item.text=cryptify(id('addItemField').value,keyCode);
     else item.text=id('addItemField').value;
     // item.type=list.type-1;
@@ -361,9 +366,11 @@ id('cancelNoteButton').addEventListener('click',function() {
 })
 
 id('confirmNoteButton').addEventListener('click', function() {
-    item={};
-    item.owner=list.id;
-    item.type=list.type-1;
+    if(item===null) {
+        item={};
+        item.owner=list.id;
+        item.type=list.type-1;
+    }
     if(item.type>3) item.text=cryptify(id('noteField').value,keyCode);
     else item.text=id('noteField').value;
     console.log("note content: "+item.text);
@@ -372,36 +379,49 @@ id('confirmNoteButton').addEventListener('click', function() {
 	console.log("database ready");
 	console.log('item.id: '+item.id+' itemIndex: '+itemIndex);
     if(item.id) { // editing existing note item
-        // ***** COMPLETE *****
-    }
-    else if(currentListItem) { // inserting new note item
-        for(var i=itemIndex;i<items.length;i++) { // increment .index of following items
-            items[i].index++;
-            var getRequest=dbObjectStore.get(items[i].id);
-            getRequest.onsuccess=function(event) {
-                var data=event.target.result;
-                data.index++;
-                var putRequest=dbObjectStore.put(data);
-		        putRequest.onsuccess=function(event) {
-			        console.log('item '+item.index+" updated");
-		        };
-		        putRequest.onerror=function(event) {console.log("error updating item "+item.index);};
-            }
-		    getRequest.onerror=function(event) {console.log("error getting item to update "+item.index);};
+        var getRequest=dbObjectStore.get(item.id);
+        getRequest.onsuccess=function(event) {
+            var data=event.target.result;
+            data.text=item.text;
+            var putRequest=dbObjectStore.put(data);
+	        putRequest.onsuccess=function(event) {
+			    console.log('item '+item.index+" updated");
+		    };
+		    putRequest.onerror=function(event) {console.log("error updating item "+item.index);};
         }
-        item.index=itemIndex;
-        items.splice(itemIndex,0,item);
+        getRequest.onerror=function(event) {console.log("error getting item to update "+item.index);}
+        items[item.index].text=item.text;
     }
-    else { // no item selected - add at end of list
-        item.index=items.length; // *** OR INSERT INTO ITEMS
-        items.push(item);
+    else {
+        if(currentListItem) { // inserting new note item
+            for(var i=itemIndex;i<items.length;i++) { // increment .index of following items
+                items[i].index++;
+                var getRequest=dbObjectStore.get(items[i].id);
+                getRequest.onsuccess=function(event) {
+                    var data=event.target.result;
+                    data.index++;
+                    var putRequest=dbObjectStore.put(data);
+		            putRequest.onsuccess=function(event) {
+		    	        console.log('item '+item.index+" updated");
+		            };
+		            putRequest.onerror=function(event) {console.log("error updating item "+item.index);};
+                }
+		        getRequest.onerror=function(event) {console.log("error getting item to update "+item.index);};
+            }
+            item.index=itemIndex;
+            items.splice(itemIndex,0,item);
+        }
+        else { // no item selected - add at end of list
+            item.index=items.length; // *** OR INSERT INTO ITEMS
+            items.push(item);
+        }
+        var addRequest=dbObjectStore.add(item);
+	    addRequest.onsuccess=function(event) {
+		    items[item.index].id=item.id=event.target.result;
+		    console.log("new item added - id is "+item.id);
+	    }
+	    addRequest.onerror=function(event) {console.log("error adding new item");};
     }
-    var addRequest=dbObjectStore.add(item);
-	addRequest.onsuccess=function(event) {
-		item.id=event.target.result;
-		console.log("new item added - id is "+item.id);
-	};
-	addRequest.onerror=function(event) {console.log("error adding new item");}; 
     id('noteDialog').style.display='none';
     id('controls').style.display='none';
     itemIndex=null;
@@ -464,7 +484,7 @@ function populateList(filter) {
 		        break;
 		    case 1:
 		        listItem.addEventListener('click',showAddDialog,false);
-		        listItem.textContent='+ list/item';
+		        listItem.textContent='+ note';
 		        break;
 		    case 2:
 		        listItem.addEventListener('click',function() {
