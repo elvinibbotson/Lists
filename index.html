@@ -1,65 +1,123 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-	<meta charset="utf-8">
-  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-  	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-  	<title>List</title>
-  	<link rel="stylesheet" type="text/css" href="listStyles.css">
-  	<link rel="manifest" href="listManifest.json">
-  	<meta name="application-name" content="List">
-  	<meta name="msapplication-square150x150logo" content="icons/icon150px.png">
-  	<meta name="msapplication-square70x70logo" content="icons/icon75px.png">
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lists</title>
+    <link rel="stylesheet" type="text/css" href="listsStyles.css">
+    <link rel="manifest" href="listsManifest.json">
+    <meta name="application-name" content="Lists">
+    <meta name="msapplication-square150x150logo" content="icons/icon150px.png">
+    <meta name="msapplication-square70x70logo" content="icons/icon75px.png">
+    <meta name="msapplication-TileColor" content="#00000000">
 </head>
-
 <body>
-
-<header class="header">
-    <div class='modeTab' id='listTab'>list</div>
-    <div class='modeTab' id='shopTab'>shop</div>
-</header>
-
-<main id="main" class="main">
-   <div class="container">
-        <div id="main" class="content">
-			<ul id="list" class="itemList"></ul>
-        </div>
-    </div>
-</main>
-
-<div id='controls'>
-    <button class='controlButton' id='upButton'></button>'
-    <button class='controlButton' id='downButton'></button>'
-    <button class='controlButton' id='deleteButton'></button>'
-    <button class='controlButton' id='addButton'></button>'
-    <button class='controlButton' id='moreButton'></button>'
-    <!-- could use characters... up: &#x25B3; down: &#x25BD;  delete: &#x274C; -->
+    
+<div id='header'>
+    <div id='heading'>Lists</div>
 </div>
 
-<div id="addDialog">
-	<div class="dialog-title">insert above <span id='clue'></span></div>
-	<p><input type="text" id="itemField" size="10"/></p>
+<div id="main">
+	<ul id="list">
+	</ul>
+</div>
+
+<div id='controls'>
+    <button class='controlButton' id='upButton'></button>
+    <button class='controlButton' id='downButton'></button>
+    <button class='controlButton' id='deleteButton'></button>
+    <button class='controlButton' id='addButton'></button>
+    <button class='controlButton' id='editButton'></button>
+</div>
+
+<div id="addDialog" class='dialog'>
+	<div id='secureChooser'>
+	        <label for='secureChoice'>private</label>
+	        <input id='secureChoice' type='checkbox'>
+	</div>
+	<div id='addTitle' class='dialog-title'>add</div>
+	<div id='typeChooser'>
+	    <input id='listChoice' type='radio' name='type' value='list'>
+	    <label for='listChoice'>list</label><br>
+	    <input id='checklistChoice' type='radio' name='type' value='checklist'>
+	    <label for='checklistChoice'>checklist</label><br>
+	    <input id='itemChoice' type='radio' name='type' value='item'>
+	    <label for='itemChoice'>note/item</label><br>
+	</div>
 	<div class="dialog-buttons">
-		<button id="cancelButton" class="button">Cancel</button>
-		<button id="saveButton" class="button">Add</button>
+		<button id="cancelAddButton" class="icon-button"></button>
+		<label for='cancelAddButton'>cancel</label>
+	    <div id='addActionGroup' class='action-group'>
+	        <label for='confirmAddButton'>add</label>
+		    <button id="confirmAddButton" class="icon-button"></button>
+		</div>
 	</div>
 </div>
 
-<div id='moreDialog'>
-    <div class="dialog-title">detail</div>
-	<p><input type="text" id="moreField" size="10"/><button id="okButton" class="button">OK</button></p>
+<div id='addItemDialog' class='dialog'>
+    <div id='addItemTitle' class='dialog-title'>add</div>
+    <p><input type="text" id="addItemField" size="15"/></p>
+    <div class="dialog-buttons">
+		<button id="cancelAddItemButton" class="icon-button"></button>
+		<label for='cancelAddItemButton'>cancel</label>
+		<div id='addItemActionGroup'>
+	        <label for='confirmAddItemButton'>add</label>
+		    <button id="confirmAddItemButton" class="icon-button"></button>
+		</div>
+	</div>
+</div>
+
+<div id='editItemDialog' class='dialog'>
+    <div id='editItemTitle'>edit</div>
+    <p><input type="text" id="editItemField" size="15"/></p>
+    <div class="dialog-buttons">
+		<button id="cancelEditItemButton" class="icon-button"></button>
+		<label for='cancelEditItemButton'>cancel</label>
+		<div id='editItemActionGroup'>
+	        <label for='confirmEditItemButton'>save</label>
+		    <button id="confirmEditItemButton" class="icon-button"></button>
+		</div>
+	</div>
+</div>
+
+<div id='noteDialog' class='dialog'>
+    <div id='noteTitle' class='dialog-title'>note item</div>
+    <textarea id="noteField" rows='5' cols='30'></textarea>
+    <div class="dialog-buttons">
+        <button id="cancelNoteButton" class="icon-button"></button>
+		<label for='cancelNoteButton'>cancel</label>
+		<div id='confirmNoteGroup'>
+	        <label for='confirmNoteButton'>save</label>
+		    <button id="confirmNoteButton" class="icon-button"></button>
+		</div>
+	</div>
+</div>
+
+<div id='keyDialog' class='dialog'>
+    <div class='dialog-title'>
+        <span id='keyTitle'>4-digit key: </span>
+        <input type="password" id="keyField" size="4"/>
+    </div>
+    <input type="hidden" id="keyCheck" value="****">
+    <div class="dialog-buttons">
+        <button id="cancelKeyButton" class="icon-button"></button>
+		<label for='cancelKeyButton'>cancel</label>
+		<div id='confirmKeyGroup'>
+	        <label for='confirmKeyButton' id='keyLabel'>unlock</label>
+		    <button id="confirmKeyButton" class="icon-button"></button>
+		</div>
+	</div>
 </div>
 
 <div id="importDialog" class="dialog">
 	<div class="dialog-title">Load from saved file</div>
 	<input type="file" id="fileChooser">
-	<div class="dialog-body">Imported data will replace any records you already have.</div>
-    	<div class="dialog-buttons">
-		<button id="buttonCancelImport" class="button">Cancel</button>
+    <div class="dialog-buttons">
+		<button id="cancelImportButton" class="icon-button"></button>
+		<label for='cancelImportButton'>cancel</label>
 	</div>
 </div>
 
-<script src="listApp.js" async></script>
+<script src="listsApp.js" async></script>
 </body>
 </html>
