@@ -86,7 +86,7 @@ function showControls() {
             showDialog('noteDialog',true);
         }
         else { // checklist item
-            if(item.type==6) id('editItemField').value=cryptify(item.text,keyCode);
+            if(item.type>4) id('editItemField').value=cryptify(item.text,keyCode);
             else id('editItemField').value=item.text;
             showDialog('editItemDialog',true);
         }
