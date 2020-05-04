@@ -9,6 +9,7 @@ var item=null;
 var itemIndex=0;
 var list={};
 var currentListItem=null;
+var currentDialog=null;
 var depth=0;
 var path=[];
 var lastSave=null;
@@ -53,22 +54,49 @@ id('main').addEventListener('touchend', function(event) {
     }
 })
 
+// SHOW/HIDE DIALOG
+function showDialog(dialog,show) {
+    console.log('show '+dialog+': '+show);
+    if(currentDialog) id(currentDialog).style.display='none';
+    if(show) {
+        id(dialog).style.display='block';
+        currentDialog=dialog;
+    }
+    else {
+        id(dialog).style.display='none';
+        currentDialog=null;
+    }
+}
+
 // SHOW CONTROLS FOR EDITING
 function showControls() {
-    itemIndex=parseInt(itemIndex);
-	item=items[itemIndex];
-	console.log("edit item: "+itemIndex+" - "+item.text);
-	if(currentListItem) currentListItem.children[0].style.backgroundColor='black'; // deselect any previously selected item
-	if(currentListItem==id('list').children[itemIndex]) {
-	    console.log("DESELECT");
-	    id('controls').style.display='none';
-	    currentListItem=null;
-	}
-	else {
+    if(currentDialog===null) { // first click on item
+        if(currentListItem) currentListItem.children[0].style.backgroundColor='black'; // deselect any previously selected item
+        itemIndex=parseInt(itemIndex);
+	    item=items[itemIndex];
+	    console.log("selected item: "+itemIndex+" - "+item.text);
 	    currentListItem=id('list').children[itemIndex];
 	    currentListItem.children[0].style.backgroundColor='gray'; // highlight new selection
-	    id('controls').style.display='block';
-	}
+	    showDialog('controls',true);
+    }
+    else if(currentDialog==='controls') { // second click - shortcut to editing
+        if(item.type%4===0) { // note item
+            if(item.type==4) id(noteField.value=cryptify(item.text,keyCode));
+            else id('noteField').value=item.text;
+            showDialog('noteDialog',true);
+        }
+        else { // checklist item
+            if(item.type==6) id('editItemField').value=cryptify(item.text,keyCode);
+            else id('editItemField').value=item.text;
+            showDialog('editItemDialog',true);
+        }
+    }
+    else { // third click - deselect
+        console.log("DESELECT");
+	    showDialog('controls',false); // should close any open dialog
+	    currentListItem.children[0].style.backgroundColor='black';
+	    currentListItem=null;
+    }
 }
 
 // MOVE ITEM UP
@@ -104,6 +132,7 @@ id('upButton').addEventListener('click', function() {
 		putRequest.onerror=function(event) {console.log("error updating item "+item.index);};
 	}
 	getRequest.onerror=function(event) {console.log('error getting item')};
+	showDialog('controls',false);
     populateList();
     itemIndex--;
     showControls();
@@ -143,6 +172,7 @@ id('downButton').addEventListener('click', function() {
 		putRequest.onerror=function(event) {console.log("error updating item "+item.index);};
 	}
 	getRequest.onerror=function(event) {console.log('error getting item')};
+	showDialog('controls',false);
     populateList();
     itemIndex++;
     showControls();
@@ -180,7 +210,7 @@ id('deleteButton').addEventListener('click',function() {
     populateList();
     itemIndex=null;
     currentListItem=null;
-    id('controls').style.display='none';
+    showDialog('controls',false);
 })
 
 // ADD ITEMS
@@ -195,8 +225,7 @@ function showAddDialog() {
     }
     id('itemChoice').disabled=(depth<1)?true:false;
     id('listChoice').checked=true;
-    id('addDialog').style.display='block';
-    id('controls').style.display='none';
+    showDialog('addDialog',true);
 }
 
 id('itemChoice').addEventListener('click', function() {
@@ -207,29 +236,30 @@ id('itemChoice').addEventListener('click', function() {
 
 id('addButton').addEventListener('click',function() {
     console.log('add item before item '+itemIndex+': '+items[itemIndex].text);
-    id('controls').style.display='none';
+    // id('controls').style.display='none';
     if(depth<2 && list.type%4==1) { // list above depth 2 - can add sub-list
         id('secureChoice').checked=(list.type>3);
         id('itemChoice').disabled=(depth<1);
         id('listChoice').checked=true;
-        id('addDialog').style.display='block';
+        // id('addDialog').style.display='block';
+        showDialog('addDialog',true);
     }
     else if(list.type%4==3) { // checklist - add checklist item
         console.log('checklist');
         id('addItemField').value='';
         showAddItemDialog();
-        // id('addItemDialog').style.display='block';
     }
     else {
         console.log('note');
         item=null;
         id('noteField').value='';
-        id('noteDialog').style.display='block';
+        showDialog('noteDialog',true);
     }
 })
 
 id('cancelAddButton').addEventListener('click',function() {
-    id('addDialog').style.display='none';
+    // id('addDialog').style.display='none';
+    showDialog('addDialog',false);
 })
 
 id('confirmAddButton').addEventListener('click',function() {
@@ -247,14 +277,13 @@ id('confirmAddButton').addEventListener('click',function() {
     }
     if(id('secureChoice').checked) item.type+=4;
     console.log("item type: "+item.type);
-    id('addDialog').style.display='none';
     if(item.type<1) { // add note
         id('noteField').value='';
-        id('noteDialog').style.display='block';
+        showDialog('noteDialog',true);
     }
     else { // list or checklist
         id('addItemField').value='';
-        id('addItemDialog').style.display='block';
+        showDialog('addItemDialog',true);
     }
 })
     
@@ -264,17 +293,16 @@ function showAddItemDialog() {
     item.owner=list.id;
     item.type=list.type-1;
     id('addItemField').value='';
-    id('addItemDialog').style.display='block';
+    showDialog('addItemDialog',true);
 }
 
 id('cancelAddItemButton').addEventListener('click',function() {
-    id('addItemDialog').style.display='none';
+    showDialog('addItemDialog',false);
 })
 
 id('confirmAddItemButton').addEventListener('click',function() {
     if(item.type>3) item.text=cryptify(id('addItemField').value,keyCode);
     else item.text=id('addItemField').value;
-    // item.type=list.type-1;
     console.log("add "+item.text+' type: '+item.type);
     // add new item;
     console.log("update list "+list.id);
@@ -288,9 +316,7 @@ id('confirmAddItemButton').addEventListener('click',function() {
             var getRequest=dbObjectStore.get(items[i].id);
             getRequest.onsuccess=function(event) {
                 var data=event.target.result;
-                // console.log(i+' index: '+data.index+' '+data.text);
                 data.index++;
-                // console.log("index changed to "+data.index);
                 var putRequest=dbObjectStore.put(data);
 		        putRequest.onsuccess=function(event) {
 			        console.log(data.text+" updated");
@@ -312,8 +338,7 @@ id('confirmAddItemButton').addEventListener('click',function() {
 		console.log("new item added - id is "+item.id);
 	};
 	addRequest.onerror=function(event) {console.log("error adding new item");};
-    id('addItemDialog').style.display='none';
-    id('controls').style.display='none';
+    showDialog('addItemDialog',false);
     itemIndex=null;
     currentListItem=null;
     populateList();
@@ -326,13 +351,17 @@ id('editButton').addEventListener('click',function() {
     if(item.type%4==0) { // note item
         if(item.type==4) id(noteField.value=cryptify(item.text,keyCode));
         else id('noteField').value=item.text;
-        id('noteDialog').style.display='block';
+        showDialog('noteDialog',true);
     }
     else { // checklist item
         if(item.type==6) id('editItemField').value=cryptify(item.text,keyCode);
         else id('editItemField').value=item.text;
-        id('editItemDialog').style.display='block';
+        showDialog('editItemDialog',true);
     }
+})
+
+id('cancelEditItemButton').addEventListener('click',function() {
+    showDialog('editItemDialog',false);
 })
 
 id('confirmEditItemButton').addEventListener('click', function() {
@@ -353,16 +382,13 @@ id('confirmEditItemButton').addEventListener('click', function() {
 		putRequest.onerror=function(event) {console.log("error updating item "+item.index);};
 	}
 	getRequest.onerror=function(event) {console.log('error getting item')};
-	id('editItemDialog').style.display='none';
-	id('controls').style.display='none';
-    // itemIndex=null;
-    // currentListItem=null;
+	showDialog('editItemDialog',false);
 	populateList();
 })
 
 // NOTE
 id('cancelNoteButton').addEventListener('click',function() {
-    id('noteDialog').style.display='none';
+    showDialog('noteDialog',false);
 })
 
 id('confirmNoteButton').addEventListener('click', function() {
@@ -422,8 +448,7 @@ id('confirmNoteButton').addEventListener('click', function() {
 	    }
 	    addRequest.onerror=function(event) {console.log("error adding new item");};
     }
-    id('noteDialog').style.display='none';
-    id('controls').style.display='none';
+    showDialog('noteDialog',false);
     itemIndex=null;
     currentListItem=null;
     populateList();
@@ -446,60 +471,28 @@ id('confirmKeyButton').addEventListener('click', function() {
         id('keyLabel').innerHTML='confirm';
         return;
     }
-    // else if(keyCode==id('keyCheck').value) { // set keyCode step 2
     else if(k==id('keyCheck').value) { // set keyCode step 2 or unlock
-        // window.localStorage.keyCode=cryptify(keyCode,'lists');
         window.localStorage.keyCode=cryptify(k,'lists');
         unlocked=true;
         id('keyLabel').innerHTML='unlock';
-        id('keyDialog').style.display='none';
+        showDialog('keyDialog',false);
         return true;
     }
     else keyCode=null;
-    id('keyDialog').style.display='none';
+    showDialog('keyDialog',false);
     console.log("key is "+keyCode);
     return false;
 })
 
 id('cancelKeyButton').addEventListener('click', function() {
-    id('keyDialog').style.display='none';
+    showDialog('keyDialog',false);
 })
 
 // POPULATE LIST
 function populateList(filter) {
     var listItem;
     id("list").innerHTML=""; // clear list
-	// *** IF LIST EMPTY ADD "add a list/item +"
-	if(items.length<1) {
-		listItem=document.createElement('li');
-		listItem.classList.add('item');
-		if(list.type%4==3) { // checklist
-		    listItem.addEventListener('click',showAddItemDialog,false);
-		    listItem.textContent='+ item';
-		}
-		else switch(depth) { // list
-		    case 0:
-		        listItem.addEventListener('click',showAddDialog,false);
-		        listItem.textContent='+ list';
-		        break;
-		    case 1:
-		        listItem.addEventListener('click',showAddDialog,false);
-		        listItem.textContent='+ note';
-		        break;
-		    case 2:
-		        listItem.addEventListener('click',function() {
-		            item={};
-		            item.type=list.type-1; // note/secure note
-		            item.owner=list.id;
-		            id('noteDialog').style.display='block';
-		        });
-		        listItem.textContent='+ item';
-		}
-		listItem.style.fontWeight='bold';
-	    id('list').appendChild(listItem);
-	}
 	console.log("populate list for path "+path+" with "+items.length + " items - depth: "+depth);
-	// id("heading").innerHTML=list.name; // OR PATH (eg Books|2020)
 	if(path.length<1)
     id('heading').innerHTML=list.name;
 	else {
@@ -518,7 +511,7 @@ function populateList(filter) {
 	 	itemText.index=i;
 	 	if(items[i].type>3) itemText.innerText=cryptify(items[i].text,keyCode);
         else itemText.innerText=items[i].text;
-	 	itemText.addEventListener('click',function() { // ****  NOT IF IN CHECK VIEW?
+        if(!path.includes('CHECK')) itemText.addEventListener('click',function() { // ****  NOT IF IN CHECK VIEW?
 	 	    itemIndex=this.index;
 	 	    showControls();
 	 	});
@@ -531,10 +524,10 @@ function populateList(filter) {
 		        itemIndex=this.index;
 		        list.id=items[this.index].id;
 		        list.type=items[this.index].type;
-		        if(list.type>3 && !keyCheck()) return; // require key to open
 		        if(list.type>3)list.name=cryptify(items[this.index].text,keyCode);
 		        else list.name=items[this.index].text;
 		        list.owner=items[this.index].owner;
+		        if(list.type>3 && !keyCheck()) return; // require key to open
 		        console.log('open list '+list.name+' id:'+list.id+' type:'+list.type+' owner: '+list.owner);
 		        depth++;
 		        path.push(list.name);
@@ -555,9 +548,37 @@ function populateList(filter) {
 	 	    });
 	 	    listItem.appendChild(itemBox);
 		}
-		if(items[i].type>3) listItem.style.color="yellow"; // *** CRYPTIFY??
+		// if(items[i].type>3) listItem.style.color="yellow"; // *** CRYPTIFY??
 		id('list').appendChild(listItem);
-	}   
+	}
+	if(path.includes('CHECK')) return; // unless in 'check' view...
+	listItem=document.createElement('li'); // ...add + item
+	listItem.classList.add('item');
+	if(list.type%4==3) { // checklist
+		listItem.addEventListener('click',showAddItemDialog,false);
+		listItem.textContent='+ item';
+	}
+	else switch(depth) { // list
+		case 0: // top level - add list/checklist
+		    listItem.addEventListener('click',showAddDialog,false);
+		    listItem.textContent='+ list';
+		    break;
+		case 1: // mid level - add list/checklist or note
+		    listItem.addEventListener('click',showAddDialog,false);
+		    listItem.textContent='+ list/note';
+		    break;
+		case 2: // lowest level - add note
+		    listItem.addEventListener('click',function() {
+		        item={};
+		        item.type=list.type-1; // note/secure note
+		        item.owner=list.id;
+		        id('noteField').value='';
+		        showDialog('noteDialog',true);
+		    });
+		    listItem.textContent='+ note';
+		}
+		listItem.style.fontWeight='bold';
+	    id('list').appendChild(listItem);
 }
 
 function checkItem(n) {
@@ -621,7 +642,8 @@ function loadListItems() {
 			if(list.id===null) { // backup checks
 				if(items.length<1) { // no data: restore backup?
 				    console.log("no data - restore backup?");
-				    document.getElementById('importDialog').style.display='block';
+				    // document.getElementById('importDialog').style.display='block';
+				    showDialog('importDialog',true);
 				}
 				else { // monthly backups
 				    var today=new Date();
@@ -657,7 +679,8 @@ id("fileChooser").addEventListener('change', function() {
 			};
 			request.onerror=function(e) {console.log("error adding item");};
 		}
-		id('importDialog').style.display='none';
+		// id('importDialog').style.display='none';
+		showDialog('importDialog',false);
 		alert("backup imported - restart");
   	});
   	fileReader.readAsText(file);
@@ -665,7 +688,7 @@ id("fileChooser").addEventListener('change', function() {
 
 // CANCEL RESTORE
 id('cancelImportButton').addEventListener('click', function() {
-    id('importDialog').style.display='none';
+    showDialog('importDialog',false);
 });
 
 // BACKUP
@@ -686,7 +709,6 @@ function backup() {
 		var cursor=event.target.result;  
     		if(cursor) { // read in every item
 			    items.push(cursor.value);
-			    // console.log("log "+cursor.value.id+", date: "+cursor.value.date+", "+cursor.value.text);
 			    cursor.continue();  
     		}
 		else {
@@ -735,19 +757,19 @@ function keyCheck() {
     id('keyField').value='';
     id('keyCheck').value=keyCode;
     id('keyLabel').innerText='unlock';
-    id('keyDialog').style.display='block';
+    showDialog('keyDialog',true);
 }
 
 // START-UP CODE
 lastSave=window.localStorage.getItem('lastSave');
 keyCode=window.localStorage.keyCode; // load any saved key
 console.log("last save: "+lastSave+"; saved key: "+keyCode);
-// *** IF NO KEYCODE DISPLAY DIALOG TO DEFINE ONE
 if(!keyCode) {
     keyCode=null;
     id('keyTitle').innerHTML='set a key';
-    id('keyDialog').style.display='block';
+    // id('keyDialog').style.display='block';
     id('keyLabel').innerHTML='next';
+    showDialog('keyDialog',true);
 }
 else keyCode=cryptify(keyCode,'lists'); // saved key was encrypted
 console.log("decoded keyCode: "+keyCode);
