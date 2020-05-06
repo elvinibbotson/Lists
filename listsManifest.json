@@ -3,12 +3,12 @@
   "short_name": "Lists",
   "icons": [
 	{
-		"src": "icons/icon192px.png",
+		"src": "icons/lists192px.png",
 		"sizes": "192x192",
 		"type": "image/png"
 	},
 	{
-		"src": "icons/icon512px.png",
+		"src": "icons/lists512px.png",
 		"sizes": "512x512",
 		"type": "image/png"
 	}
@@ -16,6 +16,6 @@
   "start_url": "index.html",
   "display": "standalone",
   "orientation":"portrait",
-  "background_color": "black",
-  "theme_color": "black"
+  "background_color": "#666666",
+  "theme_color": "#666666"
 }
