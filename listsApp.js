@@ -378,12 +378,16 @@ id('confirmEditItemButton').addEventListener('click', function() {
         var putRequest=dbObjectStore.put(data);
 		putRequest.onsuccess=function(event) {
 			console.log('item '+item.index+" updated");
+			showDialog('editItemDialog',false);
+        	populateList();
 		};
 		putRequest.onerror=function(event) {console.log("error updating item "+item.index);};
 	}
 	getRequest.onerror=function(event) {console.log('error getting item')};
+	/* move into putRequest.onsuccess, above
 	showDialog('editItemDialog',false);
 	populateList();
+	*/
 })
 
 // NOTE
