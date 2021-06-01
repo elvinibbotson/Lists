@@ -652,7 +652,8 @@ function loadListItems() {
 				else { // monthly backups
 				    var today=new Date();
 				    console.log('this month: '+today.getMonth()+"; last save: "+lastSave);
-				    if(today.getMonth()!=lastSave) backup();
+				    // if(today.getMonth()!=lastSave)
+				    backup();
 				}
 			}
 			populateList();
