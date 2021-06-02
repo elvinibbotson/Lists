@@ -644,6 +644,11 @@ function loadListItems() {
 		else {
 			console.log("No more entries! "+items.length+" items");
 			if(list.id===null) { // backup checks
+				// temporary code to remove wrongly numbered data
+				if(items[0].id<1) {
+					alert('CORRUPTED DTA: CLEAR DATABASE');
+					request=dbObjectStore.clear();
+				}
 				if(items.length<1) { // no data: restore backup?
 				    console.log("no data - restore backup?");
 				    // document.getElementById('importDialog').style.display='block';
@@ -675,15 +680,13 @@ id("fileChooser").addEventListener('change', function() {
 		var dbTransaction=db.transaction('items',"readwrite");
 		var dbObjectStore=dbTransaction.objectStore('items');
 		for(var i=0;i<items.length;i++) {
-		    items[i].id=i;
-			console.log("add "+items[i].text);
+			console.log("save "+items[i].text);
 			var request=dbObjectStore.add(items[i]);
 			request.onsuccess=function(e) {
 				console.log(items.length+" items added to database");
 			};
 			request.onerror=function(e) {console.log("error adding item");};
 		}
-		// id('importDialog').style.display='none';
 		showDialog('importDialog',false);
 		alert("backup imported - restart");
   	});
@@ -794,7 +797,7 @@ request.onsuccess=function (event) {
 };
 request.onupgradeneeded=function(event) {
 	var dbObjectStore=event.currentTarget.result.createObjectStore("items",{
-		keyPath:'id',autoIncrement: true
+		keyPath:'id'//,autoIncrement: true
 	});
 	console.log("items database ready");
 }
