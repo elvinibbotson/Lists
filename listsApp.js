@@ -644,11 +644,12 @@ function loadListItems() {
 		else {
 			console.log("No more entries! "+items.length+" items");
 			if(list.id===null) { // backup checks
-				// temporary code to remove wrongly numbered data
+				/* temporary code to remove wrongly numbered data
 				if(items[0].id<1) {
-					alert('CORRUPTED DTA: CLEAR DATABASE');
+					alert('CORRUPTED DATA: CLEAR DATABASE');
 					request=dbObjectStore.clear();
 				}
+				*/
 				if(items.length<1) { // no data: restore backup?
 				    console.log("no data - restore backup?");
 				    // document.getElementById('importDialog').style.display='block';
