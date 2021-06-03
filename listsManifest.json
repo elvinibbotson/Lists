@@ -1,6 +1,6 @@
 {
-  "name": "Liszt PWA",
-  "short_name": "Liszt",
+  "name": "liszt PWA",
+  "short_name": "liszt",
   "icons": [
 	{
 		"src": "liszt.png",
