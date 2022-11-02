@@ -67,6 +67,7 @@ function showDialog(dialog,show) {
 // TAP ON HEADER
 id('heading').addEventListener('click',function() {
 	if(depth>0) { // list heading - show item edit dialog
+		id('listTitle').innerHTML='list';
 		id(listField.value=list.name);
 		console.log('edit list header - '+items.length+' items');
 		// for(var i in items) console.log('item '+i+': '+items[i].text);
@@ -126,37 +127,7 @@ id('addNoteButton').addEventListener('click',function() {
 id('cancelAddButton').addEventListener('click',function() {
 	showDialog('addDialog',false);
 })
-/* SHOW CONTROLS FOR EDITING
-function showControls() {
-    if(currentDialog===null) { // first click on item
-        if(currentListItem) currentListItem.children[0].style.backgroundColor='black'; // deselect any previously selected item
-        itemIndex=parseInt(itemIndex);
-	    item=items[itemIndex];
-	    console.log("selected item: "+itemIndex+" - "+item.text);
-	    currentListItem=id('list').children[itemIndex];
-	    currentListItem.children[0].style.backgroundColor='gray'; // highlight new selection
-	    showDialog('controls',true);
-    }
-    else if(currentDialog==='controls') { // second click - shortcut to editing
-        if(item.type%4===0) { // note item
-            if(item.type==4) id(noteField.value=cryptify(item.text,keyCode));
-            else id('noteField').value=item.text;
-            showDialog('noteDialog',true);
-        }
-        else { // checklist item
-            if(item.type>4) id('editItemField').value=cryptify(item.text,keyCode);
-            else id('editItemField').value=item.text;
-            showDialog('editItemDialog',true);
-        }
-    }
-    else { // third click - deselect
-        console.log("DESELECT");
-	    showDialog('controls',false); // should close any open dialog
-	    currentListItem.children[0].style.backgroundColor='black';
-	    currentListItem=null;
-    }
-}
-*/
+
 // MOVE UP/DOWN
 id('listUpButton').addEventListener('click', function() {move(true);})
 id('listDownButton').addEventListener
@@ -342,7 +313,10 @@ function populateList() {
 		else { // tap on note to edit it
 			listItem.addEventListener('click',function() {
 				itemIndex=this.index;
+				id('noteTitle').innerHTML='note';
 				id('noteField').innerText=items[i].text;
+				id('noteUpButton').style.display='block';
+				id('noteDownButton').style.display='block';
 				id('deleteNoteButton').style.display='block';
 				showDialog('noteDialog',true);
 			})
