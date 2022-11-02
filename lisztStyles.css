@@ -60,8 +60,8 @@ input[type=radio] {
 input[type=checkbox] {
     width: 24px;
     height: 24px;
-    margin-right: 20px;
-    float: right;
+    margin-left: 10px;
+    float: left;
 }
 
 textarea {
@@ -188,7 +188,7 @@ li {
     background: url(upButton24px.svg) center center no-repeat;
 }
 
-#listDownButton, #noteDoenButton {
+#listDownButton, #noteDownButton {
     background: url(downButton24px.svg) center center no-repeat;
 }
 
@@ -196,31 +196,15 @@ li {
     background: url(deleteButton24px.svg) center center no-repeat;
 }
 
-#confirmAddButton {
-    background: url(addButton24px.svg) center center no-repeat;
-}
-
-#cancelListButton {
+#cancelListButton, #cancelNoteButton {
     background: url(cancelButton24px.svg) center center no-repeat;
 }
 
-#deleteListButton {
+#deleteListButton, #deleteNoteButton {
 	background: url(deleteButton24px.svg) center center no-repeat;
 }
 
-#confirmListButton {
-    background: url(okButton24px.svg) center center no-repeat;
-}
-
-#cancelNoteButton {
-    background: url(cancelButton24px.svg) center center no-repeat;
-}
-
-#deleteNoteButton {
-	background: url(deleteButton24px.svg) center center no-repeat;
-}
-
-#confirmNoteButton {
+#confirmListButton, #confirmNoteButton {
     background: url(okButton24px.svg) center center no-repeat;
 }
 

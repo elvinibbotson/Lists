@@ -89,7 +89,11 @@ id('buttonNew').addEventListener('click', function(){
     }
     else {
         item=null;
+        id('noteTitle').innerHTML='new note';
         id('noteField').value='';
+        id('noteDownButton').style.display='none';
+		id('noteUpButton').style.display='none';
+		id('deleteNoteButton').style.display='none';
         showDialog('noteDialog',true);
     }
 })
@@ -107,6 +111,7 @@ id('addListButton').addEventListener('click',function() {
 	showDialog('listDialog',true);
 })
 id('addNoteButton').addEventListener('click',function() {
+	item=null;
 	id('noteTitle').innerHTML='new note';
 	id('noteField').value='';
 	id('noteDownButton').style.display='none';
@@ -307,6 +312,14 @@ function populateList() {
 	    if((list.type&2)&&(items[i].checked)) continue; // don't show checked items
 		listItem=document.createElement('li');
 		listItem.index=i;
+		if(items[i].type&2) { // checkbox
+		    var itemBox=document.createElement('input');
+	 	    itemBox.setAttribute('type','checkbox');
+	 	    itemBox.index=i;
+	 	    itemBox.checked=items[i].checked;
+	 	    itemBox.addEventListener('change',function() {checkItem(this.index);}); // toggle item .checked property
+	 	    listItem.appendChild(itemBox);
+		}
 		var itemText=document.createElement('span');
 	 	itemText.index=i;
         itemText.innerText=items[i].text;
@@ -333,14 +346,6 @@ function populateList() {
 				id('deleteNoteButton').style.display='block';
 				showDialog('noteDialog',true);
 			})
-		}
-	 	if(items[i].type&2) { // add checkbox?
-		    var itemBox=document.createElement('input');
-	 	    itemBox.setAttribute('type','checkbox');
-	 	    itemBox.index=i;
-	 	    itemBox.checked=items[i].checked;
-	 	    itemBox.addEventListener('change',function() {checkItem(this.index);}); // toggle item .checked property
-	 	    listItem.appendChild(itemBox);
 		}
 		id('list').appendChild(listItem);
 	}
