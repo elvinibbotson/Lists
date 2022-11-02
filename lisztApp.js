@@ -448,8 +448,11 @@ id('cancelImportButton').addEventListener('click', function() {
 
 // BACKUP
 function backup() {
-  	console.log("EXPORT");
-	var fileName="lists.json";
+  	var fileName="lists";
+	var date=new Date();
+	fileName+=date.getFullYear();
+	fileName+=(date.getMonth()+1);
+	fileName+=date.getDate()+".json";
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
