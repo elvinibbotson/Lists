@@ -183,10 +183,11 @@ function move(up) { // move list/note item up/down
 // NOTE
 id('confirmNoteButton').addEventListener('click',function() {
 	item.text=id('noteField').value;
+	item.type=0;
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
-	if(item,id) { // editing note
+	if(item.id) { // editing note
 		var getRequest=dbObjectStore.get(item.id);
 		getRequest.onsuccess=function(event) {
 	    	var data=event.target.result;
@@ -204,7 +205,7 @@ id('confirmNoteButton').addEventListener('click',function() {
 		var addRequest=dbObjectStore.add(item);
 		addRequest.onsuccess=function(event) {
 			item.id=event.target.result;
-			console.log("new note added - id is "+item.id);
+			console.log("new note "+item.text+" added - id is "+item.id);
 		};
 		addRequest.onerror=function(event) {console.log("error adding new note");};
 	}
@@ -220,8 +221,8 @@ id('cancelNoteButton').addEventListener('click',function() {
 
 // LIST
 id('confirmListButton').addEventListener('click',function() {
-	if(id('checkBoxes').checked) item.type|2;
-	if(id('checkAlpha').checked) item.type|4;
+	if(id('checkBoxes').checked) item.type|=2;
+	if(id('checkAlpha').checked) item.type|=4;
 	console.log('list type: '+item.type);
 	item.text=id('listField').value;
 	var dbTransaction=db.transaction('items',"readwrite");
@@ -273,17 +274,85 @@ function populateList() {
 	        id('heading').innerHTML+='.'+path[i++];
 	    }
 	}
-	if(list.type&4) items.sort(function(a,b){ // sort alphabetically...
+	// separate into lists and notes
+	var listItems=[];
+	var noteItems=[];
+	for(var i in items) {
+		if(items[i].type>0) listItems.push(items[i]);
+		else noteItems.push(items[i]);
+	}
+	// show lists first, sorted alphabetically
+	listItems.sort(function(a,b){ // always sort list items alphabetically...
 		if(a.text.toUpperCase()<b.text.toUpperCase()) return -1;
 		if(a.text.toUpperCase()>b.text.toUpperCase()) return 1;
 		return 0;
 	});
-	else items.sort(function(a,b){return a.index-b.index}); // ...or by .index
+	// show notes below lists - sorted alphabetically?
+	if(list.type&4) noteItems.sort(function(a,b){ // sort notes alphabetically...
+		if(a.text.toUpperCase()<b.text.toUpperCase()) return -1;
+		if(a.text.toUpperCase()>b.text.toUpperCase()) return 1;
+		return 0;
+	});
+	else noteItems.sort(function(a,b){return a.index-b.index}); // ...or by .index
+	for(var i in listItems) { // list first...
+		console.log('listItem '+i+': '+listItems[i].text);
+		if((list.type&2)&&(items[i].checked)) continue; // don't show checked items
+		listItem=document.createElement('li');
+		listItem.index=i;
+		listItem.innerText=listItems[i].text;
+		listItem.addEventListener('click',function() {
+	 		itemIndex=this.index;
+	 		item=items[itemIndex];
+	 		console.log('open list '+itemIndex);
+			list.id=listItems[this.index].id;
+			list.type=listItems[this.index].type;
+			list.name=listItems[this.index].text;
+			list.owner=listItems[this.index].owner;
+			console.log('open list '+list.name+' id:'+list.id+' type:'+list.type+' owner: '+list.owner);
+			depth++;
+			path.push(list.name);
+			loadListItems();
+		});
+		listItem.style.fontWeight='bold'; // lists are bold
+		id('list').appendChild(listItem);
+	}
+	for(var i in noteItems) { // ...then notes
+		console.log('noteItem '+i+': '+noteItems[i].text);
+		if((list.type&2)&&(items[i].checked)) continue; // don't show checked items
+		listItem=document.createElement('li');
+		listItem.index=i;
+		if(list.type&2) { // checkbox list
+		    var itemBox=document.createElement('input');
+	 	    itemBox.setAttribute('type','checkbox');
+	 	    itemBox.index=i;
+	 	    itemBox.checked=items[i].checked;
+	 	    itemBox.addEventListener('change',function() {checkItem(this.index);}); // toggle item .checked property
+	 	    listItem.appendChild(itemBox);
+		}
+		var itemText=document.createElement('span');
+	 	itemText.index=i;
+        itemText.innerText=items[i].text;
+	 	listItem.appendChild(itemText);
+	 	listItem.addEventListener('click',function() {
+			itemIndex=this.index;
+			item=items[itemIndex];
+			console.log('note item '+itemIndex+': '+item.text+'; type '+item.type);
+			id('noteTitle').innerHTML='note';
+			id('noteField').innerText=item.text;
+			id('noteUpButton').style.display='block';
+			id('noteDownButton').style.display='block';
+			id('deleteNoteButton').style.display='block';
+			showDialog('noteDialog',true);
+		})
+		id('list').appendChild(listItem);
+	}
+	
+	/*
 	for(var i in items) {
 	    if((list.type&2)&&(items[i].checked)) continue; // don't show checked items
 		listItem=document.createElement('li');
 		listItem.index=i;
-		if(items[i].type&2) { // checkbox
+		if(list.type&2) { // checkbox list
 		    var itemBox=document.createElement('input');
 	 	    itemBox.setAttribute('type','checkbox');
 	 	    itemBox.index=i;
@@ -298,6 +367,7 @@ function populateList() {
 	 	if(items[i].type&1) { // tap on a list to open it
 		    listItem.addEventListener('click',function() {
 	 	    	itemIndex=this.index;
+	 	    	item=items[itemIndex];
 	 	    	console.log('open list '+itemIndex);
 		    	list.id=items[this.index].id;
 		    	list.type=items[this.index].type;
@@ -313,8 +383,10 @@ function populateList() {
 		else { // tap on note to edit it
 			listItem.addEventListener('click',function() {
 				itemIndex=this.index;
+				item=items[itemIndex];
+				console.log('note item '+itemIndex+': '+item.text+'; type '+item.type);
 				id('noteTitle').innerHTML='note';
-				id('noteField').innerText=items[i].text;
+				id('noteField').innerText=item.text;
 				id('noteUpButton').style.display='block';
 				id('noteDownButton').style.display='block';
 				id('deleteNoteButton').style.display='block';
@@ -323,8 +395,7 @@ function populateList() {
 		}
 		id('list').appendChild(listItem);
 	}
-	listItem=document.createElement('li'); // ...add + item
-	listItem.classList.add('item');
+	*/
 }
 
 function checkItem(n) {
@@ -511,7 +582,7 @@ request.onsuccess=function (event) {
 };
 request.onupgradeneeded=function(event) {
 	var dbObjectStore=event.currentTarget.result.createObjectStore("items",{
-		keyPath:'id'//,autoIncrement: true
+		keyPath:'id',autoIncrement: true
 	});
 	console.log("items database ready");
 }
