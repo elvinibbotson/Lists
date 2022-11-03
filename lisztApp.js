@@ -70,7 +70,8 @@ id('heading').addEventListener('click',function() {
 		id('listTitle').innerHTML='list';
 		id(listField.value=list.name);
 		console.log('edit list header - '+items.length+' items');
-		// for(var i in items) console.log('item '+i+': '+items[i].text);
+		id('checkAlpha').checked=list.type&2;
+		id('checkBoxes').checked=list.type&4;
 		if(items.length>0) { // can only delete empty lists
 			id('deleteListButton').style.display='none';
 			console.log('disable delete');
@@ -214,7 +215,18 @@ id('confirmNoteButton').addEventListener('click',function() {
     currentListItem=null;
 	loadListItems();
 })
-
+id('deleteNoteButton').addEventListener('click',function() {
+	var dbTransaction=db.transaction('items',"readwrite");
+	var dbObjectStore=dbTransaction.objectStore('items');
+	console.log("database ready");
+	var request=dbObjectStore.delete(item.id);
+	request.onsuccess=function(event) {
+		console.log('note deleted');
+		showDialog('noteDialog',false);
+		loadListItems();
+	}
+	request.onerror=function(event) {console.log('error deleting note')};
+})
 id('cancelNoteButton').addEventListener('click',function() {
     showDialog('noteDialog',false);
 })
@@ -254,6 +266,22 @@ id('confirmListButton').addEventListener('click',function() {
 	itemIndex=null;
     currentListItem=null;
 	loadListItems();
+})
+id('deleteListButton').addEventListener('click',function() {
+	var dbTransaction=db.transaction('items',"readwrite");
+	var dbObjectStore=dbTransaction.objectStore('items');
+	console.log("database ready");
+	var delRequest=dbObjectStore.delete(list.id);
+	delRequest.onsuccess=function(event) {
+		console.log('list deleted');
+		showDialog('listDialog',false);
+		depth--;
+		path.pop();
+		list.id=list.owner;
+		console.log('back to list '+list.id);
+		loadListItems();
+	}
+	delRequest.onerror=function(event) {console.log('error deleting list')};
 })
 id('cancelListButton').addEventListener('click',function() {
     showDialog('listDialog',false);
@@ -331,11 +359,11 @@ function populateList() {
 		}
 		var itemText=document.createElement('span');
 	 	itemText.index=i;
-        itemText.innerText=items[i].text;
+        itemText.innerText=noteItems[i].text;
 	 	listItem.appendChild(itemText);
 	 	listItem.addEventListener('click',function() {
 			itemIndex=this.index;
-			item=items[itemIndex];
+			item=noteItems[itemIndex];
 			console.log('note item '+itemIndex+': '+item.text+'; type '+item.type);
 			id('noteTitle').innerHTML='note';
 			id('noteField').innerText=item.text;
@@ -344,6 +372,7 @@ function populateList() {
 			id('deleteNoteButton').style.display='block';
 			showDialog('noteDialog',true);
 		})
+		console.log('add '+itemText.innerText+' to list');
 		id('list').appendChild(listItem);
 	}
 	
@@ -420,7 +449,6 @@ function checkItem(n) {
 
 // LOAD LIST ITEMS
 function loadListItems() {
-	//  load children of list.id
 	console.log("load children of list.id "+list.id+" - depth: "+depth+' owner: '+list.owner);
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
@@ -449,6 +477,7 @@ function loadListItems() {
 		var cursor=event.target.result;
 		if(cursor) {
 			if(cursor.value.owner==list.id) { // just items in this list
+				if(cursor.value.type==4) cursor.value.type=0; // **** TEMPORARY FIX ****
 				items.push(cursor.value);
 				console.log("item id: "+cursor.value.id+"; index: "+cursor.value.index+"; "+cursor.value.text+"; type: "+cursor.value.type+"; owner: "+cursor.value.owner);
 			}
