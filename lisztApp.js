@@ -72,8 +72,8 @@ id('heading').addEventListener('click',function() {
 		id('listTitle').innerHTML='list';
 		id(listField.value=list.name);
 		console.log('edit list header - '+(lists.length+notes.length)+' items');
-		id('checkAlpha').checked=list.type&2;
-		id('checkBoxes').checked=list.type&4;
+		id('checkAlpha').checked=list.type&4;
+		id('checkBoxes').checked=list.type&2;
 		if((lists.length>0)||(notes.length>0)) { // can only delete empty lists
 			id('deleteListButton').style.display='none';
 			console.log('disable delete');
@@ -387,7 +387,7 @@ function populateList() {
 		return 0;
 	});
 	// show notes below lists - sorted alphabetically?
-	if(list.type&4) noteItems.sort(function(a,b){ // sort notes alphabetically...
+	if(list.type&4) notes.sort(function(a,b){ // sort notes alphabetically...
 		if(a.text.toUpperCase()<b.text.toUpperCase()) return -1;
 		if(a.text.toUpperCase()>b.text.toUpperCase()) return 1;
 		return 0;
