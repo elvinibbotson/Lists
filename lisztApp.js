@@ -79,8 +79,6 @@ id('heading').addEventListener('click',function() {
 			console.log('disable delete');
 		}
 		else id('deleteListButton').style.display='block';
-		id('listUpButton').style.display='none';
-		id('listDownButton').style.display='none';
 		showDialog('listDialog',true);
 	}
 	else showDialog('dataDialog',true);
@@ -132,8 +130,6 @@ id('cancelAddButton').addEventListener('click',function() {
 })
 
 // MOVE UP/DOWN
-id('listUpButton').addEventListener('click', function() {move(true);})
-id('listDownButton').addEventListener
 id('noteUpButton').addEventListener('click', function() {move(true);})
 id('noteDownButton').addEventListener('click', function() {move(false);})
 function move(up) { // move note up/down
@@ -175,6 +171,7 @@ id('confirmNoteButton').addEventListener('click',function() {
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
 	if(item.id) { // editing note
+		/* NO NEED FOR get REQUEST - JUST put
 		var getRequest=dbObjectStore.get(item.id);
 		getRequest.onsuccess=function(event) {
 	    	var data=event.target.result;
@@ -188,6 +185,13 @@ id('confirmNoteButton').addEventListener('click',function() {
 			putRequest.onerror=function(event) {console.log("error updating note "+item.index);};
 		}
 		getRequest.onerror=function(event) {console.log('error getting list')};
+		*/
+		var putRequest=dbObjectStore.put(item);
+		putRequest.onsuccess=function(event) {
+			console.log('note '+item.index+" updated");
+			loadList();
+		};
+		putRequest.onerror=function(event) {console.log("error updating note "+item.index);};
 	}
 	else { // no id so adding new note
 		item.owner=list.id;
@@ -231,6 +235,7 @@ id('confirmListButton').addEventListener('click',function() {
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
 	if(item.id) { // editing list
+		/* NO NEED TO get - JUST put
 		var getRequest=dbObjectStore.get(item.id);
 		getRequest.onsuccess=function(event) {
 	    	var data=event.target.result;
@@ -243,6 +248,12 @@ id('confirmListButton').addEventListener('click',function() {
 			putRequest.onerror=function(event) {console.log("error updating list "+item.index);};
 		}
 		getRequest.onerror=function(event) {console.log('error getting list')};
+		*/
+		var putRequest=dbObjectStore.put(item);
+		putRequest.onsuccess=function(event) {
+			console.log('list '+item.index+" updated");
+		};
+		putRequest.onerror=function(event) {console.log("error updating list "+item.index);};
 	}
 	else { // no id so adding new list
 		var addRequest=dbObjectStore.add(item);
