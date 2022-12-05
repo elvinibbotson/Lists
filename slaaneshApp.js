@@ -1,0 +1,520 @@
+function id(el) {
+	return document.getElementById(el);
+}
+'use strict';
+// GLOBAL VARIABLES	
+var db=null;
+var items=[];
+var item=null;
+var itemIndex=0;
+var list={};
+var currentListItem=null;
+var currentDialog=null;
+var depth=0;
+var path=[];
+var lastSave=null;
+var pin='';
+var keyCode=null;
+var unlocked=false;
+var months="JanFebMarAprMayJunJulAugSepOctNovDec";
+var dragStart={};
+
+// DRAG TO CHANGE DEPTH
+id('main').addEventListener('touchstart', function(event) {
+    // console.log(event.changedTouches.length+" touches");
+    dragStart.x=event.changedTouches[0].clientX;
+    dragStart.y=event.changedTouches[0].clientY;
+})
+
+id('main').addEventListener('touchend', function(event) {
+    var drag={};
+    drag.x=dragStart.x-event.changedTouches[0].clientX;
+    drag.y=dragStart.y-event.changedTouches[0].clientY;
+    if(Math.abs(drag.y)>50) return; // ignore vertical drags
+    if((drag.x<-50)&&(depth>0)) { // drag right to decrease depth...
+        console.log('path: '+path);
+        list.id=list.owner;
+        path.pop();
+        depth--;
+        if(depth<1) list.id=list.owner=null;
+        console.log('list.id: '+list.id+' path: '+path+' depth: '+depth);
+        loadListItems();
+    }
+})
+
+// TAP ON HEADER
+id('heading').addEventListener('click',function() {
+	if(depth>0) { // list heading - show item edit dialog
+		id(listField.value=list.name);
+		console.log('edit list header - '+items.length+' items');
+		for(var i in items) console.log('item '+i+': '+items[i].text);
+		if(items.length>0) {
+			id('deleteListButton').style.display='none';
+			console.log('disable delete');
+		}
+		else id('deleteListButton').style.display='block';
+		showDialog('listDialog',true);
+	}
+	else showDialog('dataDialog',true);
+});
+
+// SHOW/HIDE DIALOG
+function showDialog(dialog,show) {
+    console.log('show '+dialog+': '+show);
+    if(currentDialog) id(currentDialog).style.display='none';
+    if(show) {
+        id(dialog).style.display='block';
+        currentDialog=dialog;
+    }
+    else {
+        id(dialog).style.display='none';
+        currentDialog=null;
+    }
+}
+
+// ADD ITEMS
+function showAddDialog() {
+    id('itemChoice').disabled=(depth<1)?true:false;
+    id('listChoice').checked=true;
+    showDialog('addDialog',true);
+}
+
+id('buttonNew').addEventListener('click', function(){
+    if(depth<2 && list.type>0) { // list above depth 2 - can add sub-list
+        showDialog('addDialog',true);
+    }
+    else {
+        item=null;
+        id('noteField').value='';
+        showDialog('noteDialog',true);
+    }
+})
+
+id('cancelAddButton').addEventListener('click',function() {
+    // id('addDialog').style.display='none';
+    showDialog('addDialog',false);
+})
+
+id('addListButton').addEventListener('click',function() {
+	id('listField').value='';
+    id('deleteListButton').style.display='none';
+    showDialog('listDialog',true);
+})
+
+id('addNoteButton').addEventListener('click',function() {
+	id('noteField').value='';
+    id('deleteNoteButton').style.display='none';
+    showDialog('noteDialog',true);
+})
+
+// LIST 
+id('cancelListButton').addEventListener('click',function() {
+    showDialog('listDialog',false);
+})
+id('confirmListButton').addEventListener('click', function() {
+    item.text=cryptify(id('listField').value,keyCode);
+    console.log('encrypt to '+item.text);
+    var dbTransaction=db.transaction('items',"readwrite");
+	var dbObjectStore=dbTransaction.objectStore('items');
+	console.log("database ready");
+	if(item.id) { // edit existing list name
+		var getRequest=dbObjectStore.get(item.id);
+		getRequest.onsuccess=function(event) {
+	    	var data=event.target.result;
+        	data.text=item.text;
+        	var putRequest=dbObjectStore.put(data);
+			putRequest.onsuccess=function(event) {
+				console.log('item '+item.index+" updated");
+				showDialog('editItemDialog',false);
+        		loadListItems();
+			};
+			putRequest.onerror=function(event) {console.log("error updating item "+item.index);};
+		}
+		getRequest.onerror=function(event) {console.log('error getting item')};
+	}
+	else { // add new list
+		var addRequest=dbObjectStore.add(item);
+		addRequest.onsuccess=function(event) {
+			console.log('new list added');
+			showDialog('listDialog',false);
+			loadListItems();
+		}
+		addRequest.onerror=function(event) {cosnole.log('error adding new list');}
+	}
+	
+})
+id('deleteListButton').addEventListener('click',function() {
+	if(items.length>0) {
+		alert('CAN ONLY DELETE EMPTY LISTS');
+		return;
+	}
+	var dbTransaction=db.transaction('items',"readwrite");
+	var dbObjectStore=dbTransaction.objectStore('items');
+	console.log("database ready to delete list item");
+	console.log('delete list item '+itemIndex+' id: '+list.id); // items[itemIndex].id);
+	var delRequest=dbObjectStore.delete(list.id); // items[itemIndex].id);
+	delRequest.onsuccess=function() {
+	    console.log('deleted from database');
+	    showDialog('listDialog',false);
+	    depth--;
+	}
+	delRequest.onerror=function(event) {console.log('delete failed')};
+    items.splice(itemIndex,1);
+    console.log("delete complete");
+    populateList();
+    itemIndex=null;
+    currentListItem=null;
+})
+
+// NOTE
+id('cancelNoteButton').addEventListener('click',function() {
+    showDialog('noteDialog',false);
+})
+
+id('deleteNoteButton').addEventListener('click', function() {
+	var dbTransaction=db.transaction('items',"readwrite");
+	var dbObjectStore=dbTransaction.objectStore('items');
+	console.log("database ready to delete item");
+	console.log('delete item '+itemIndex+' id: '+items[itemIndex].id);
+	var delRequest=dbObjectStore.delete(items[itemIndex].id);
+	delRequest.onsuccess=function() {
+	    console.log('deleted from database');
+	    showDialog('noteDialog',false);
+	}
+	delRequest.onerror=function(event) {console.log('delete failed')};
+    items.splice(itemIndex,1);
+    console.log("delete complete");
+    populateList();
+    itemIndex=null;
+    currentListItem=null;
+})
+
+id('confirmNoteButton').addEventListener('click', function() {
+    if(item===null) {
+        item={};
+        item.owner=list.id;
+        item.type=list.type-1;
+    }
+    item.text=cryptify(id('noteField').value,keyCode);
+    console.log("encrypted note: "+item.text);
+    var dbTransaction=db.transaction('items',"readwrite");
+	var dbObjectStore=dbTransaction.objectStore('items');
+	console.log("database ready");
+	console.log('item.id: '+item.id+' itemIndex: '+itemIndex);
+    if(item.id) { // editing existing note item
+        var getRequest=dbObjectStore.get(item.id);
+        getRequest.onsuccess=function(event) {
+            var data=event.target.result;
+            data.text=item.text;
+            var putRequest=dbObjectStore.put(data);
+	        putRequest.onsuccess=function(event) {
+			    console.log('item '+item.index+" updated");
+		    };
+		    putRequest.onerror=function(event) {console.log("error updating item "+item.index);};
+        }
+        getRequest.onerror=function(event) {console.log("error getting item to update "+item.index);}
+        items[item.index].text=item.text;
+    }
+    else { // add new note
+        var addRequest=dbObjectStore.add(item);
+	    addRequest.onsuccess=function(event) {
+		    item.id=event.target.result;
+		    console.log("new item added - id is "+item.id);
+	    }
+	    addRequest.onerror=function(event) {console.log("error adding new item");};
+    }
+    showDialog('noteDialog',false);
+    itemIndex=null;
+    currentListItem=null;
+    loadListItems();
+})
+
+// POPULATE LIST
+function populateList(decrypt) {
+    var listItem;
+    id("list").innerHTML=""; // clear list
+	console.log("populate list for path "+path+" with "+items.length + " items - depth: "+depth);
+	if(path.length<1)
+    id('heading').innerHTML=(depth<1)?'Slaanesh':list.name;
+	else {
+	    id('heading').innerHTML=path[0];
+	    var i=1;
+	    while(i<path.length) {
+	        id('heading').innerHTML+='.'+path[i++];
+	    }
+	}
+	if(decrypt) for(i in items) {
+		items[i].text=cryptify(items[i].text,keyCode);
+		console.log('item '+i+': '+items[i].text);
+	}
+	items.sort(function(a,b){ // sort alphabetically
+		if(a.text.toUpperCase()<b.text.toUpperCase()) return -1;
+		if(a.text.toUpperCase()>b.text.toUpperCase()) return 1;
+		return 0;
+	});
+	for(var i in items) {
+	    console.log('add item '+i+': '+items[i].text+' type '+items[i].type);
+		listItem=document.createElement('li');
+		listItem.index=i;
+	 	listItem.innerText=items[i].text;
+		if(items[i].type>0) { // tap on list to open it
+		    listItem.addEventListener('click',function() {
+	 	    	itemIndex=this.index;
+	 	    	console.log('open list '+itemIndex);
+		    	list.id=items[this.index].id;
+		    	list.type=items[this.index].type;
+		    	list.name=items[this.index].text;
+		    	list.owner=items[this.index].owner;
+		    	console.log('open list '+list.name+' id:'+list.id+' type:'+list.type+' owner: '+list.owner);
+		    	depth++;
+		    	path.push(list.name);
+		    	loadListItems();
+	 		});
+		    listItem.style.fontWeight='bold'; // lists are bold
+		}
+		else { // tap on note to edit it
+			listItem.addEventListener('click',function() {
+				itemIndex=this.index;
+				id('noteField').innerText=items[i].text;
+				id('deleteNoteButton').style.display='block';
+				showDialog('noteDialog',true);
+			})
+		}
+		id('list').appendChild(listItem);
+	}
+}
+
+// LOAD LIST ITEMS
+function loadListItems() {
+	//  load children of list.id
+	console.log("load children of list.id "+list.id+" - depth: "+depth+' owner: '+list.owner);
+	var dbTransaction=db.transaction('items',"readwrite");
+	var dbObjectStore=dbTransaction.objectStore('items');
+	console.log("database ready");
+	var item={};
+	if(list.id!==null) {
+		console.log("get list item "+list.id);
+		var request=dbObjectStore.get(list.id);
+		request.onsuccess=function() {
+			item=event.target.result;
+			console.log("list item "+item.text+"; type: "+item.type+"; owner: "+item.owner);
+			list.name=cryptify(item.text,keyCode);
+			list.type=item.type; // types 1-3 only
+		};
+		request.onerror=function() {console.log("error retrieving item "+list.id);}
+	}
+	else {
+	    list.name="Slaanesh";
+	    list.type=1;
+	}
+	items=[];
+	request=dbObjectStore.openCursor();
+	request.onsuccess=function(event) {
+		var cursor=event.target.result;
+		if(cursor) {
+			if(cursor.value.owner==list.id) { // just items in this list
+				if(cursor.value.type>3) cursor.value.type-=4;
+				items.push(cursor.value);
+				console.log("item id: "+cursor.value.id+"; index: "+cursor.value.index+"; "+cursor.value.text+"; type: "+cursor.value.type+"; owner: "+cursor.value.owner);
+			}
+			cursor.continue ();
+		}
+		else {
+			console.log("No more entries! "+items.length+" items");
+			if(list.id===null) { // backup checks
+				if(items.length<1) { // no data: restore backup?
+				    console.log("no data - restore backup?");
+				    // document.getElementById('importDialog').style.display='block';
+				    showDialog('importDialog',true);
+				}
+				else { // monthly backups
+				    var today=new Date();
+				    console.log('this month: '+today.getMonth()+"; last save: "+lastSave);
+				    if(today.getMonth()!=lastSave) backup();
+				}
+			}
+			populateList(true);
+		}
+	}
+}
+
+// DATA
+id('backupButton').addEventListener('click',function() {showDialog('dataDialog',false); backup();});
+id('importButton').addEventListener('click',function() {showDialog('importDialog',true)});
+id('dataCancelButton').addEventListener('click',function() {showDialog('dataDialog',false)});
+
+// RESTORE BACKUP
+id("fileChooser").addEventListener('change', function() {
+	var file=id('fileChooser').files[0];
+	console.log("file: "+file+" name: "+file.name);
+	var fileReader=new FileReader();
+	fileReader.addEventListener('load', function(evt) {
+		console.log("file read: "+evt.target.result);
+	  	var data=evt.target.result;
+		var json=JSON.parse(data);
+		console.log("json: "+json);
+		var items=json.items;
+		console.log(items.length+" items loaded");
+		var dbTransaction=db.transaction('items',"readwrite");
+		var dbObjectStore=dbTransaction.objectStore('items');
+		for(var i=0;i<items.length;i++) {
+			console.log("save "+items[i].text);
+			var request=dbObjectStore.add(items[i]);
+			request.onsuccess=function(e) {
+				console.log(items.length+" items added to database");
+			};
+			request.onerror=function(e) {console.log("error adding item");};
+		}
+		showDialog('importDialog',false);
+		alert("data imported - restart");
+  	});
+  	fileReader.readAsText(file);
+});
+
+// CANCEL RESTORE
+id('cancelImportButton').addEventListener('click', function() {
+    showDialog('importDialog',false);
+});
+
+// BACKUP
+function backup() {
+  	console.log("EXPORT");
+	var fileName="secrets";
+	var date=new Date();
+	fileName+=date.getFullYear();
+	fileName+=(date.getMonth()+1);
+	fileName+=date.getDate()+".json";
+	var dbTransaction=db.transaction('items',"readwrite");
+	var dbObjectStore=dbTransaction.objectStore('items');
+	console.log("database ready");
+	var request=dbObjectStore.openCursor();
+	var items=[];
+	dbTransaction=db.transaction('items',"readwrite");
+	console.log("indexedDB transaction ready");
+	dbObjectStore=dbTransaction.objectStore('items');
+	console.log("indexedDB objectStore ready");
+	request=dbObjectStore.openCursor();
+	request.onsuccess=function(event) {  
+		var cursor=event.target.result;  
+    		if(cursor) { // read in every item
+			    items.push(cursor.value);
+			    cursor.continue();  
+    		}
+		else {
+			console.log(items.length+" items - save");
+			var data={'items': items};
+			var json=JSON.stringify(data);
+			var blob=new Blob([json], {type:"data:application/json"});
+  			var a=document.createElement('a');
+			a.style.display='none';
+    		var url=window.URL.createObjectURL(blob);
+			console.log("data ready to save: "+blob.size+" bytes");
+   			a.href=url;
+   			a.download=fileName;
+    		document.body.appendChild(a);
+    		a.click();
+			alert(fileName+" saved to downloads folder");
+			var today=new Date();
+			lastSave=today.getMonth();
+			window.localStorage.setItem('lastSave',lastSave); // remember month of backup
+		}
+	}
+}
+
+// ENCRYPT/DECRYPT TEXT USING KEY
+function cryptify(value,key) {
+	var i=0;
+	var result="";
+	var k;
+	var v;
+	for (i=0;i<value.length;i++) {
+		k=key.charCodeAt(i%key.length);
+		v=value.charCodeAt(i);
+		result+=String.fromCharCode(k ^ v);
+	}
+	return result;
+};
+
+// KEY CHECK
+
+function tapKey(n) {
+	pin+=n;
+	id('pinField').innerHTML+='*';
+	console.log('pin: '+pin);
+	if(pin.length>3) { // 4 digits entered
+		console.log("keyCode: "+keyCode);
+		console.log("check: "+id('keyCheck').value);
+		if(keyCode===null) { // set keyCode - step 1
+			keyCode=pin;
+			id('keyTitle').innerHTML='confirm key';
+        	return;
+    	}
+    else if(pin==id('keyCheck').value) { // set keyCode step 2 or unlock
+        window.localStorage.keyCode=cryptify(pin,'secrets');
+        unlocked=true;
+        showDialog('keyDialog',false);
+        loadListItems(); // WAS IN startup
+        return true;
+    }
+    else keyCode=null;
+    showDialog('keyDialog',false);
+    console.log("key is "+keyCode);
+    return false;
+	}
+} 
+
+function keyCheck() {
+    console.log('KEY CHECK');
+    if(unlocked) return true;
+    id('keyTitle').innerText='enter key';
+    id('keyCheck').value=keyCode;
+    showDialog('keyDialog',true);
+}
+
+// START-UP CODE
+lastSave=window.localStorage.getItem('lastSave');
+keyCode=window.localStorage.keyCode; // load any saved key
+console.log("last save: "+lastSave+"; saved key: "+keyCode);
+if(!keyCode) { // first use - set a PIN
+    keyCode=null;
+    id('keyTitle').innerHTML='set a PIN';
+    id(pinField).innerHTML='';
+    showDialog('keyDialog',true);
+}
+else { // start-up - enter PIN
+	console.log('encrypted keyCode: '+keyCode);
+	keyCode=cryptify(keyCode,'secrets'); // saved key was encrypted
+	console.log("decoded keyCode: "+keyCode);
+	id('keyTitle').innerText='PIN';
+	id('pinField').innerHTML='';
+	pin='';
+    id('keyCheck').value=keyCode;
+    showDialog('keyDialog',true);
+}
+// load items from database
+var request=window.indexedDB.open("slaaneshDB");
+request.onsuccess=function (event) {
+	db=event.target.result;
+	console.log("DB open");
+	list.id=list.owner=null;
+};
+request.onupgradeneeded=function(event) {
+	var dbObjectStore=event.currentTarget.result.createObjectStore("items",{
+		keyPath:'id',autoIncrement: true
+	});
+	console.log("items database ready");
+}
+request.onerror=function(event) {
+	alert("indexedDB error code "+event.target.errorCode);
+};
+	
+// implement service worker if browser is PWA friendly
+if (navigator.serviceWorker.controller) {
+	console.log('Active service worker found, no need to register')
+} else { //Register the ServiceWorker
+	navigator.serviceWorker.register('slaaneshSW.js', {
+		scope: '/slaanesh/'
+	}).then(function(reg) {
+		console.log('Service worker has been registered for scope:'+ reg.scope);
+	});
+}
