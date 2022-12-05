@@ -64,6 +64,7 @@ function showDialog(dialog,show) {
         id(dialog).style.display='none';
         currentDialog=null;
     }
+    console.log('current dialog: '+currentDialog);
 }
 
 // TAP ON HEADER
