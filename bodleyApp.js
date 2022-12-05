@@ -104,8 +104,6 @@ id('addListButton').addEventListener('click',function() {
 	id('listField').value='';
 	id('checkAlpha').checked=false;
 	id('checkBoxes').checked=false;
-	id('listDownButton').style.display='none';
-	id('listUpButton').style.display='none';
 	id('deleteListButton').style.display='none';
 	item={};
     item.owner=list.id;
