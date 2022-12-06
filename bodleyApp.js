@@ -327,7 +327,7 @@ function loadList() {
 		request.onerror=function() {console.log("error retrieving item "+list.id);}
 	}
 	else {
-	    list.name="Lists";
+	    list.name="Bodley";
 	    list.type=1;
 	}
 	// items=[];

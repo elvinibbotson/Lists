@@ -4,22 +4,22 @@
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="black">
-    <title>slaanesh</title>
-    <link rel="stylesheet" type="text/css" href="slaaneshStyles.css">
-    <link rel="manifest" href="slaaneshManifest.json">
-    <meta name="application-name" content="slaanesh">
+    <title>bodley</title>
+    <link rel="stylesheet" type="text/css" href="bodleyStyles.css">
+    <link rel="manifest" href="bodleyManifest.json">
+    <meta name="application-name" content="bodley">
 </head>
 <body>
     
 <div id='header'>
-    <div id='heading'>Slaanesh</div>
-</div>
+    <div id='heading'>Bodley</div>
+  </div>
 
 <div id="main">
 	<ul id="list"></ul>
 </div>
 
-<div id='buttonNew' class='round-button'><img src='newButton24px.svg'/></div>
+<div id='buttonNew' class='round-button'><img src='addButton24px.svg'/></div>
 
 <div id="addDialog" class='dialog'>
 	<button id="cancelAddButton" class="icon-button"></button>
@@ -43,24 +43,11 @@
     <br>
     <div class="dialog-buttons">
     	<button id="deleteNoteButton" class="icon-button"></button>
+    	<button id='noteUpButton' class='icon-button'></button>
+    	<button id='noteDownButton' class='icon-button'></button>
     	<button id="cancelNoteButton" class="icon-button"></button>
     	<button id="confirmNoteButton" class="icon-button"></button>
 	</div>
-</div>
-
-<div id='keyDialog' class='dialog'>
-    <div class='dialog-title'>
-        <span id='keyTitle'>PIN: </span>
-        <span id='pinField'></span>
-    </div>
-    <input type="hidden" id="keyCheck" value="****">
-	<center div id='keypad'>
-		<br><br>
-		<button class='key-button' onclick='tapKey("1");'>1</button><button class='key-button' onclick='tapKey("2");'>2</button><button class='key-button' onclick='tapKey("3");'>3</button><br>
-		<button class='key-button' onclick='tapKey("4");'>4</button><button class='key-button' onclick='tapKey("5");'>5</button><button class='key-button' onclick='tapKey("6");'>6</button><br>
-		<button class='key-button' onclick='tapKey("7");'>7</button><button class='key-button' onclick='tapKey("8");'>8</button><button class='key-button' onclick='tapKey("9");'>9</button><br>
-		<button class='key-button' onclick='tapKey("0");'>0</button>
-	</center>
 </div>
 
 <div id='dataDialog' class='dialog'>
@@ -77,6 +64,6 @@
 	</div>
 </div>
 
-<script src="slaaneshApp.js" async></script>
+<script src="bodleyApp.js" async></script>
 </body>
 </html>
