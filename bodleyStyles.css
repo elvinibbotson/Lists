@@ -184,6 +184,7 @@ li {
     flex-direction: column;
     transition: opacity 0.2s ease-in-out;
     padding: 0 0.5em;
+    z-index=10;
 }
 
 #listUpButton, #noteUpButton {
@@ -207,7 +208,11 @@ li {
 	background: url(deleteButton24px.svg) center center no-repeat;
 }
 
-#confirmListButton, #confirmNoteButton {
+#listAddButton, #noteAddButton {
+    background: url(addButton24px.svg) center center no-repeat;
+}
+
+#listSaveButton, #noteSaveButton {
     background: url(okButton24px.svg) center center no-repeat;
 }
 

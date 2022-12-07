@@ -45,13 +45,19 @@ id('main').addEventListener('touchend', function(event) {
         console.log('list.id: '+list.id+' path: '+path+' depth: '+depth);
         loadList();
     }
+    /*
     else if((drag.x>50)&&(depth>0)&&list.type%4==3) {  // drag left to change checklist to 'shopping' view
         console.log("switch to 'check' view");
         path.push('CHECK');
         populateList(true);
     }
+    */
+    else if(currentDialog && drag.x>50) { // drag left to cancel dialogs
+    	console.log('CANCEL');
+		id(currentDialog).style.display='none';
+		currentDialog=null;
+    }
 })
-
 // SHOW/HIDE DIALOG
 function showDialog(dialog,show) {
     console.log('show '+dialog+': '+show);
@@ -106,6 +112,8 @@ id('addListButton').addEventListener('click',function() {
 	id('checkAlpha').checked=false;
 	id('checkBoxes').checked=false;
 	id('deleteListButton').style.display='none';
+	id('listSaveButton').style.display='none';
+	id('listAddButton').style.display='block';
 	item={};
     item.owner=list.id;
     item.type=1;
@@ -118,6 +126,8 @@ id('addNoteButton').addEventListener('click',function() {
 	id('noteDownButton').style.display='none';
 	id('noteUpButton').style.display='none';
 	id('deleteNoteButton').style.display='none';
+	id('noteSaveButton').style.display='none';
+	id('noteAddButton').style.display='block';
 	item={};
 	item.owner=list.id;
 	item.type=0;
@@ -162,51 +172,37 @@ function move(up) { // move note up/down
 }
 
 // NOTE
-id('confirmNoteButton').addEventListener('click',function() {
-	item={};
+id('noteAddButton').addEventListener('click',function() {
 	item.text=id('noteField').value;
-	item.type=0;
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
-	if(item.id) { // editing note
-		/* NO NEED FOR get REQUEST - JUST put
-		var getRequest=dbObjectStore.get(item.id);
-		getRequest.onsuccess=function(event) {
-	    	var data=event.target.result;
-        	data.text=item.text;
-        	data.type=item.type;
-        	var putRequest=dbObjectStore.put(data);
-			putRequest.onsuccess=function(event) {
-				console.log('note '+item.index+" updated");
-				loadList();
-			};
-			putRequest.onerror=function(event) {console.log("error updating note "+item.index);};
-		}
-		getRequest.onerror=function(event) {console.log('error getting list')};
-		*/
-		var putRequest=dbObjectStore.put(item);
-		putRequest.onsuccess=function(event) {
+	var addRequest=dbObjectStore.add(item);
+	addRequest.onsuccess=function(event) {
+		item.id=event.target.result;
+		console.log("new note:"+item.text+"type:"+item.type+" owner:"+item.owner+" added - id is "+item.id);
+		loadList();
+	};
+	addRequest.onerror=function(event) {console.log("error adding new note");};
+	showDialog('noteDialog',false);
+})
+id('noteSaveButton').addEventListener('click',function() {
+	/* NOT NEEDED?
+	item={};
+	item.text=id('noteField').value;
+	item.type=0;
+	item.owner=list.id;
+	*/
+	var dbTransaction=db.transaction('items',"readwrite");
+	var dbObjectStore=dbTransaction.objectStore('items');
+	console.log("database ready");
+	var putRequest=dbObjectStore.put(item);
+	putRequest.onsuccess=function(event) {
 			console.log('note '+item.index+" updated");
 			loadList();
 		};
-		putRequest.onerror=function(event) {console.log("error updating note "+item.index);};
-	}
-	else { // no id so adding new note
-		item.owner=list.id;
-		item.type=0;
-		var addRequest=dbObjectStore.add(item);
-		addRequest.onsuccess=function(event) {
-			item.id=event.target.result;
-			console.log("new note:"+item.text+"type:"+item.type+" owner:"+item.owner+" added - id is "+item.id);
-			loadList();
-		};
-		addRequest.onerror=function(event) {console.log("error adding new note");};
-	}
+	putRequest.onerror=function(event) {console.log("error updating note "+item.index);};
 	showDialog('noteDialog',false);
-	// itemIndex=null;
-    // currentListItem=null;
-	// loadList();
 })
 id('deleteNoteButton').addEventListener('click',function() {
 	var dbTransaction=db.transaction('items',"readwrite");
@@ -225,7 +221,7 @@ id('cancelNoteButton').addEventListener('click',function() {
 })
 
 // LIST
-id('confirmListButton').addEventListener('click',function() {
+id('listAddButton').addEventListener('click',function() {
 	if(id('checkBoxes').checked) item.type|=2;
 	if(id('checkAlpha').checked) item.type|=4;
 	console.log('list type: '+item.type);
@@ -233,39 +229,30 @@ id('confirmListButton').addEventListener('click',function() {
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
-	if(item.id) { // editing list
-		/* NO NEED TO get - JUST put
-		var getRequest=dbObjectStore.get(item.id);
-		getRequest.onsuccess=function(event) {
-	    	var data=event.target.result;
-        	data.text=item.text;
-        	data.type=item.type;
-        	var putRequest=dbObjectStore.put(data);
-			putRequest.onsuccess=function(event) {
-				console.log('list '+item.index+" updated");
-			};
-			putRequest.onerror=function(event) {console.log("error updating list "+item.index);};
-		}
-		getRequest.onerror=function(event) {console.log('error getting list')};
-		*/
-		var putRequest=dbObjectStore.put(item);
-		putRequest.onsuccess=function(event) {
-			console.log('list '+item.index+" updated");
-		};
-		putRequest.onerror=function(event) {console.log("error updating list "+item.index);};
-	}
-	else { // no id so adding new list
-		var addRequest=dbObjectStore.add(item);
-		addRequest.onsuccess=function(event) {
-			item.id=event.target.result;
-			console.log("new list added - id is "+item.id);
-		};
-		addRequest.onerror=function(event) {console.log("error adding new list");};
-	}
+	var addRequest=dbObjectStore.add(item);
+	addRequest.onsuccess=function(event) {
+		item.id=event.target.result;
+		console.log("new list added - id is "+item.id);
+		loadList();
+	};
+	addRequest.onerror=function(event) {console.log("error adding new list");};
 	showDialog('listDialog',false);
-	itemIndex=null;
-    currentListItem=null;
-	loadList();
+})
+id('listSaveButton').addEventListener('click',function() {
+	if(id('checkBoxes').checked) item.type|=2;
+	if(id('checkAlpha').checked) item.type|=4;
+	console.log('list type: '+item.type);
+	item.text=id('listField').value;
+	var dbTransaction=db.transaction('items',"readwrite");
+	var dbObjectStore=dbTransaction.objectStore('items');
+	console.log("database ready");
+	var putRequest=dbObjectStore.put(item);
+	putRequest.onsuccess=function(event) {
+		console.log('list '+item.index+" updated");
+		loadList();
+	};
+	putRequest.onerror=function(event) {console.log("error updating list "+item.index);};
+	showDialog('listDialog',false);
 })
 id('deleteListButton').addEventListener('click',function() {
 	var dbTransaction=db.transaction('items',"readwrite");
@@ -432,7 +419,7 @@ function populateList() {
 	 	itemText.index=i;
         itemText.innerText=notes[i].text;
 	 	listItem.appendChild(itemText);
-	 	listItem.addEventListener('click',function() {
+	 	listItem.addEventListener('click',function(event) {
 			itemIndex=this.index;
 			item=notes[itemIndex];
 			console.log('note '+itemIndex+': '+item.text+'; type '+item.type);
@@ -442,6 +429,7 @@ function populateList() {
 			id('noteDownButton').style.display='block';
 			id('deleteNoteButton').style.display='block';
 			showDialog('noteDialog',true);
+			// event.stopPropagation();
 		})
 		console.log('add '+itemText.innerText+' to list');
 		id('list').appendChild(listItem);
