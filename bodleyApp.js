@@ -70,7 +70,7 @@ function showDialog(dialog,show) {
 // TAP ON HEADER
 id('heading').addEventListener('click',function() {
 	if(depth>0) { // list heading - show item edit dialog
-		id('listTitle').innerHTML='list';
+		id('listDialogTitle').innerHTML='list';
 		id(listField.value=list.name);
 		console.log('edit list header - '+(lists.length+notes.length)+' items');
 		id('checkAlpha').checked=list.type&4;
@@ -101,7 +101,7 @@ id('buttonNew').addEventListener('click', function(){
     }
 })
 id('addListButton').addEventListener('click',function() {
-	id('listTitle').innerHTML='new list';
+	id('listDialogTitle').innerHTML='new list';
 	id('listField').value='';
 	id('checkAlpha').checked=false;
 	id('checkBoxes').checked=false;
