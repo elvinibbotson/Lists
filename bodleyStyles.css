@@ -85,23 +85,6 @@ li {
 	display: block;
 }
 
-#header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width:100%;
-    height: 20px;
-    padding: 10px;
-    background-color: black;
-    z-index: 10;
-}
-
-#heading {
-  color: white;
-  font-weight: bold;
-  font-size: 1.2em;
-}
-
 .dialog {
   background: dimgray;
   position: absolute;
@@ -162,6 +145,23 @@ li {
 	padding: 13px;
 }
 
+#header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width:100%;
+    height: 20px;
+    padding: 10px;
+    background-color: black;
+    z-index: 10;
+}
+
+#heading {
+  color: white;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
 #main {
     margin-top: 24px;
     width: 100%;
@@ -175,6 +175,14 @@ li {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   background-color: #333;
+}
+
+#displayDialog {
+	background-color: white;
+	color: black;
+	font-size: 2em;
+	font-weight: bold;
+	display: block;
 }
   
 #list {

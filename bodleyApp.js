@@ -11,7 +11,7 @@ var item=null;
 var itemIndex=0;
 var list={};
 var currentListItem=null;
-var currentDialog=null;
+var currentDialog='displayDialog';
 var depth=0;
 var path=[];
 var lastSave=null;
@@ -58,6 +58,13 @@ id('main').addEventListener('touchend', function(event) {
 		currentDialog=null;
     }
 })
+
+// DISPLAY MESSAGES
+function display(message) {
+	id('message').innerText.value=message;
+	showDialog('displayDialog',true);
+}
+
 // SHOW/HIDE DIALOG
 function showDialog(dialog,show) {
     console.log('show '+dialog+': '+show);
@@ -464,7 +471,7 @@ id("fileChooser").addEventListener('change', function() {
 			request.onerror=function(e) {console.log("error adding item");};
 		}
 		showDialog('importDialog',false);
-		alert("backup imported - restart");
+		display("backup imported - restart");
   	});
   	fileReader.readAsText(file);
 });
@@ -510,7 +517,7 @@ function backup() {
    			a.download=fileName;
     		document.body.appendChild(a);
     		a.click();
-			alert(fileName+" saved to downloads folder");
+			display(fileName+" saved to downloads folder");
 			var today=new Date();
 			lastSave=today.getMonth();
 			window.localStorage.setItem('lastSave',lastSave); // remember month of backup
@@ -544,7 +551,7 @@ request.onupgradeneeded=function(event) {
 	console.log("items database ready");
 }
 request.onerror=function(event) {
-	alert("indexedDB error code "+event.target.errorCode);
+	display("indexedDB error code "+event.target.errorCode);
 };
 	
 // implement service worker if browser is PWA friendly
