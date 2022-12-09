@@ -121,7 +121,7 @@ li {
 	font-weight: bold;
 	color: white;
 	background-color:gray;
-	float: right;
+	/* float: right; */
 }
 
 .round-button {
@@ -181,7 +181,7 @@ li {
 	color: black;
 	font-size: 2em;
 	font-weight: bold;
-	display: block;
+	display: none;
 }
   
 #list {
@@ -196,10 +196,12 @@ li {
 
 #listUpButton, #noteUpButton {
     background: url(upButton24px.svg) center center no-repeat;
+    float: left;
 }
 
 #listDownButton, #noteDownButton {
     background: url(downButton24px.svg) center center no-repeat;
+     float: left;
 }
 
 #deleteListButton, #deleteNoteButton {

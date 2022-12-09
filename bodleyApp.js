@@ -86,8 +86,8 @@ id('heading').addEventListener('click',function() {
 			console.log('disable delete');
 		}
 		else id('deleteListButton').style.display='block';
-		id('addListButton').style.display='none';
-		id('savelistButton').style.display='block';
+		id('listAddButton').style.display='none';
+		id('listSaveButton').style.display='block';
 		showDialog('listDialog',true);
 	}
 	else showDialog('dataDialog',true);
@@ -136,10 +136,11 @@ id('addNoteButton').addEventListener('click',function() {
 	showDialog('noteDialog',true);
 
 })
+/*
 id('cancelAddButton').addEventListener('click',function() {
 	showDialog('addDialog',false);
 })
-
+*/
 // MOVE UP/DOWN
 id('noteUpButton').addEventListener('click', function() {move(true);})
 id('noteDownButton').addEventListener('click', function() {move(false);})
@@ -189,20 +190,16 @@ id('noteAddButton').addEventListener('click',function() {
 	showDialog('noteDialog',false);
 })
 id('noteSaveButton').addEventListener('click',function() {
-	/* NOT NEEDED?
-	item={};
 	item.text=id('noteField').value;
-	item.type=0;
-	item.owner=list.id;
-	*/
+	console.log('save note '+item.text);
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
 	var putRequest=dbObjectStore.put(item);
 	putRequest.onsuccess=function(event) {
-			console.log('note '+item.index+" updated");
-			loadList();
-		};
+		console.log('note '+item.index+" updated");
+		loadList();
+	};
 	putRequest.onerror=function(event) {console.log("error updating note "+item.index);};
 	showDialog('noteDialog',false);
 })
@@ -218,9 +215,9 @@ id('deleteNoteButton').addEventListener('click',function() {
 	}
 	request.onerror=function(event) {console.log('error deleting note')};
 })
-id('cancelNoteButton').addEventListener('click',function() {
+/* id('cancelNoteButton').addEventListener('click',function() {
     showDialog('noteDialog',false);
-})
+}) */
 
 // LIST
 id('listAddButton').addEventListener('click',function() {
@@ -272,9 +269,9 @@ id('deleteListButton').addEventListener('click',function() {
 	}
 	delRequest.onerror=function(event) {console.log('error deleting list')};
 })
-id('cancelListButton').addEventListener('click',function() {
+/* id('cancelListButton').addEventListener('click',function() {
     showDialog('listDialog',false);
-})
+}) */
 
 function checkItem(n) {
     items[n].checked=!items[n].checked;
@@ -382,8 +379,8 @@ function populateList() {
 	});
 	else notes.sort(function(a,b){return a.index-b.index}); // ...or by .index
 	for(var i in lists) { // list first...
-		console.log('list '+i+': '+lists[i].text);
-		if((list.type&2)&&(items[i].checked)) continue; // don't show checked items
+		// console.log('list '+i+': '+lists[i].text);
+		// if((list.type&2)&&(items[i].checked)) continue; // don't show checked items
 		listItem=document.createElement('li');
 		listItem.index=i;
 		listItem.innerText=lists[i].text;
@@ -431,9 +428,8 @@ function populateList() {
 			id('noteDownButton').style.display='block';
 			id('deleteNoteButton').style.display='block';
 			showDialog('noteDialog',true);
-			// event.stopPropagation();
 		})
-		console.log('add '+itemText.innerText+' to list');
+		// console.log('add '+itemText.innerText+' to list');
 		id('list').appendChild(listItem);
 	}
 }
@@ -441,7 +437,7 @@ function populateList() {
 // DATA
 id('backupButton').addEventListener('click',function() {showDialog('dataDialog',false); backup();});
 id('importButton').addEventListener('click',function() {showDialog('importDialog',true)});
-id('dataCancelButton').addEventListener('click',function() {showDialog('dataDialog',false)});
+/* id('dataCancelButton').addEventListener('click',function() {showDialog('dataDialog',false)}); */
 
 // RESTORE BACKUP
 id("fileChooser").addEventListener('change', function() {
@@ -472,9 +468,9 @@ id("fileChooser").addEventListener('change', function() {
 });
 
 // CANCEL RESTORE
-id('cancelImportButton').addEventListener('click', function() {
+/* id('cancelImportButton').addEventListener('click', function() {
     showDialog('importDialog',false);
-});
+}); */
 
 // BACKUP
 function backup() {
