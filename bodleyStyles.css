@@ -109,8 +109,7 @@ li {
     height: 24px;
     border: none;
     padding: 5px;
-    margin: 5px;
-    float: right;
+    margin: 12px;
 }
 
 .text-button {
@@ -205,29 +204,25 @@ li {
 
 #deleteListButton, #deleteNoteButton {
 	float: left;
+	margin-right: 48px;
     background: url(deleteButton24px.svg) center center no-repeat;
 }
-
-#cancelAddButton, #cancelListButton, #cancelNoteButton, #dataCancelButton {
+/*
+#cancelAddButton, #cancelListButton, #cancelNoteButton, #dataCancelButton, #cancelImportButton {
     background: url(cancelButton24px.svg) center center no-repeat;
 }
-
-#deleteListButton, #deleteNoteButton {
-	background: url(deleteButton24px.svg) center center no-repeat;
-}
+*/
 
 #listAddButton, #noteAddButton {
     background: url(addButton24px.svg) center center no-repeat;
+    float: right;
 }
 
 #listSaveButton, #noteSaveButton {
     background: url(okButton24px.svg) center center no-repeat;
+    float: right;
 }
 
 #fileChooser {
 	font-size: 1.5em;
-}
-
-#cancelImportButton {
-    background: url(cancelButton24px.svg) center center no-repeat;
 }

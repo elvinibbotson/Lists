@@ -45,13 +45,6 @@ id('main').addEventListener('touchend', function(event) {
         console.log('list.id: '+list.id+' path: '+path+' depth: '+depth);
         loadList();
     }
-    /*
-    else if((drag.x>50)&&(depth>0)&&list.type%4==3) {  // drag left to change checklist to 'shopping' view
-        console.log("switch to 'check' view");
-        path.push('CHECK');
-        populateList(true);
-    }
-    */
     else if(currentDialog && drag.x>50) { // drag left to cancel dialogs
     	console.log('CANCEL');
 		id(currentDialog).style.display='none';
@@ -93,6 +86,8 @@ id('heading').addEventListener('click',function() {
 			console.log('disable delete');
 		}
 		else id('deleteListButton').style.display='block';
+		id('addListButton').style.display='none';
+		id('savelistButton').style.display='block';
 		showDialog('listDialog',true);
 	}
 	else showDialog('dataDialog',true);
