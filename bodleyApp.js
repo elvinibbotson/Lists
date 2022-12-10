@@ -95,18 +95,20 @@ id('heading').addEventListener('click',function() {
 
 // ADD NEW ITEM
 id('buttonNew').addEventListener('click', function(){
-    if(depth<2 && list.type>0) { // list above depth 2 - can add sub-list
+	item={};
+	id('noteTitle').innerHTML='new note';
+	id('noteField').value='';
+	id('noteDownButton').style.display='none';
+	id('noteUpButton').style.display='none';
+	id('deleteNoteButton').style.display='none';
+	id('noteSaveButton').style.display='none';
+	id('noteAddButton').style.display='block';
+	item.owner=list.id;
+	item.type=0;
+    if(depth<2 && list.type>0) { // list above depth 2 - can add sub-list...
         showDialog('addDialog',true);
     }
-    else {
-        item=null;
-        id('noteTitle').innerHTML='new note';
-        id('noteField').value='';
-        id('noteDownButton').style.display='none';
-		id('noteUpButton').style.display='none';
-		id('deleteNoteButton').style.display='none';
-        showDialog('noteDialog',true);
-    }
+    else showDialog('noteDialog',true); // ...otherwise has to be note
 })
 id('addListButton').addEventListener('click',function() {
 	id('listDialogTitle').innerHTML='new list';
@@ -122,17 +124,7 @@ id('addListButton').addEventListener('click',function() {
 	showDialog('listDialog',true);
 })
 id('addNoteButton').addEventListener('click',function() {
-	item=null;
-	id('noteTitle').innerHTML='new note';
-	id('noteField').value='';
-	id('noteDownButton').style.display='none';
-	id('noteUpButton').style.display='none';
-	id('deleteNoteButton').style.display='none';
-	id('noteSaveButton').style.display='none';
-	id('noteAddButton').style.display='block';
-	item={};
-	item.owner=list.id;
-	item.type=0;
+	
 	showDialog('noteDialog',true);
 
 })
@@ -427,6 +419,8 @@ function populateList() {
 			id('noteUpButton').style.display='block';
 			id('noteDownButton').style.display='block';
 			id('deleteNoteButton').style.display='block';
+			id('noteAddButton').style.display='none';
+			id('noteSaveButton').style.display='block';
 			showDialog('noteDialog',true);
 		})
 		// console.log('add '+itemText.innerText+' to list');
