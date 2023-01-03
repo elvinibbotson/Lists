@@ -471,8 +471,12 @@ function backup() {
   	var fileName="lists";
 	var date=new Date();
 	fileName+=date.getFullYear();
-	fileName+=(date.getMonth()+1);
-	fileName+=date.getDate()+".json";
+	var num=date.getMonth()+1;
+	fileName+=(num<10)?'0':'';
+	fileName+=(num);
+	num=date.getDate();
+	fileName+=(num>10)?'0':'';
+	fileName+=num+".json";
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
