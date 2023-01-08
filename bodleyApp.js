@@ -65,10 +65,12 @@ function showDialog(dialog,show) {
     if(show) {
         id(dialog).style.display='block';
         currentDialog=dialog;
+        id('buttonNew').style.display='none';
     }
     else {
         id(dialog).style.display='none';
         currentDialog=null;
+        id('buttonNew').style.display='block';
     }
     console.log('current dialog: '+currentDialog);
 }
@@ -128,11 +130,7 @@ id('addNoteButton').addEventListener('click',function() {
 	showDialog('noteDialog',true);
 
 })
-/*
-id('cancelAddButton').addEventListener('click',function() {
-	showDialog('addDialog',false);
-})
-*/
+
 // MOVE UP/DOWN
 id('noteUpButton').addEventListener('click', function() {move(true);})
 id('noteDownButton').addEventListener('click', function() {move(false);})
@@ -475,7 +473,7 @@ function backup() {
 	fileName+=(num<10)?'0':'';
 	fileName+=(num);
 	num=date.getDate();
-	fileName+=(num>10)?'0':'';
+	fileName+=(num<10)?'0':'';
 	fileName+=num+".json";
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
@@ -501,7 +499,7 @@ function backup() {
   			var a=document.createElement('a');
 			a.style.display='none';
     		var url=window.URL.createObjectURL(blob);
-			console.log("data ready to save: "+blob.size+" bytes");
+			console.log(fileName+" ready to save: "+blob.size+" bytes");
    			a.href=url;
    			a.download=fileName;
     		document.body.appendChild(a);
@@ -534,13 +532,16 @@ request.onsuccess=function (event) {
 	};
 };
 request.onupgradeneeded=function(event) {
-	var dbObjectStore=event.currentTarget.result.createObjectStore("items",{
-		keyPath:'id',autoIncrement: true
-	});
-	console.log("items database ready");
+	db=event.currentTarget.result;
+	if(!db.objectStoreNames.contains('items')) {
+		var dbObjectStore=db.createObjectStore("items",{ keyPath:"id",autoIncrement:true });
+		console.log("items store created");
+	}
+	else console.log("items store exists");
+	console.log("database ready");
 }
 request.onerror=function(event) {
-	display("indexedDB error code "+event.target.errorCode);
+	alert("indexedDB error code "+event.target.errorCode);
 };
 	
 // implement service worker if browser is PWA friendly
