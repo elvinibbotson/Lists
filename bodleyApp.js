@@ -369,8 +369,6 @@ function populateList() {
 	});
 	else notes.sort(function(a,b){return a.index-b.index}); // ...or by .index
 	for(var i in lists) { // list first...
-		// console.log('list '+i+': '+lists[i].text);
-		// if((list.type&2)&&(items[i].checked)) continue; // don't show checked items
 		listItem=document.createElement('li');
 		listItem.index=i;
 		listItem.innerText=lists[i].text;
@@ -421,7 +419,6 @@ function populateList() {
 			id('noteSaveButton').style.display='block';
 			showDialog('noteDialog',true);
 		})
-		// console.log('add '+itemText.innerText+' to list');
 		id('list').appendChild(listItem);
 	}
 }
