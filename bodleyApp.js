@@ -264,21 +264,21 @@ id('deleteListButton').addEventListener('click',function() {
 }) */
 
 function checkItem(n) {
-    items[n].checked=!items[n].checked;
-    console.log(items[n].text+" checked is "+items[n].checked);
+    notes[n].checked=!notes[n].checked;
+    console.log(notes[n].text+" checked is "+notes[n].checked);
     // update database
     var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
-	var getRequest=dbObjectStore.get(items[n].id);
+	var getRequest=dbObjectStore.get(notes[n].id);
 	getRequest.onsuccess=function(event) {
 	    var data=event.target.result;
-        data.checked=items[n].checked;
+        data.checked=notes[n].checked;
         var putRequest=dbObjectStore.put(data);
 		putRequest.onsuccess=function(event) {
-			console.log('item '+items[n].text+" updated");
+			console.log('item '+notes[n].text+" updated");
 		};
-		putRequest.onerror=function(event) {console.log("error updating item "+item[n].text);};
+		putRequest.onerror=function(event) {console.log("error updating item "+notes[n].text);};
 	}
 	getRequest.onerror=function(event) {console.log('error getting item')};
 }
@@ -391,14 +391,14 @@ function populateList() {
 	for(var i in notes) { // ...then notes
 		console.log('note '+i+': '+notes[i].text);
 		notes[i].index=i;
-		if((list.type&2)&&(items[i].checked)) continue; // don't show checked items
+		if((list.type&2)&&(notes[i].checked)) continue; // don't show checked items
 		listItem=document.createElement('li');
 		listItem.index=i;
 		if(list.type&2) { // checkbox list
 		    var itemBox=document.createElement('input');
 	 	    itemBox.setAttribute('type','checkbox');
 	 	    itemBox.index=i;
-	 	    itemBox.checked=items[i].checked;
+	 	    itemBox.checked=notes[i].checked;
 	 	    itemBox.addEventListener('change',function() {checkItem(this.index);}); // toggle item .checked property
 	 	    listItem.appendChild(itemBox);
 		}
