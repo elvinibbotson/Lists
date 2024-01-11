@@ -83,7 +83,8 @@ id('heading').addEventListener('click',function() {
 		console.log('edit list header - '+(lists.length+notes.length)+' items');
 		id('checkAlpha').checked=list.type&4;
 		id('checkBoxes').checked=list.type&2;
-		if((lists.length>0)||(notes.length>0)) { // can only delete empty lists
+		// if((lists.length>0)||(notes.length>0)) { // can only delete empty lists
+		if((lists.length>0)||(id('list').getElementsByTagName('li').lenght>0)) {
 			id('deleteListButton').style.display='none';
 			console.log('disable delete');
 		}
