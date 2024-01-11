@@ -406,7 +406,8 @@ function populateList() {
 	 	itemText.index=i;
         itemText.innerText=notes[i].text;
 	 	listItem.appendChild(itemText);
-	 	listItem.addEventListener('click',function(event) {
+	 	// listItem.addEventListener('click',function(event) {
+	 	itemText.addEventListener('click',function(event) {
 			itemIndex=this.index;
 			item=notes[itemIndex];
 			console.log('note '+itemIndex+': '+item.text+'; type '+item.type);
