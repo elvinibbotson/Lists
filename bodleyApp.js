@@ -49,6 +49,7 @@ id('main').addEventListener('touchend', function(event) {
     	console.log('CANCEL');
 		id(currentDialog).style.display='none';
 		currentDialog=null;
+		id('buttonNew').style.display='block';
     }
 })
 
@@ -413,7 +414,8 @@ function populateList() {
 			item=notes[itemIndex];
 			console.log('note '+itemIndex+': '+item.text+'; type '+item.type);
 			id('noteTitle').innerHTML='note';
-			id('noteField').innerText=item.text;
+			console.log('note is '+item.text);
+			id('noteField').value=item.text;
 			id('noteUpButton').style.display='block';
 			id('noteDownButton').style.display='block';
 			id('deleteNoteButton').style.display='block';
