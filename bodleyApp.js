@@ -14,7 +14,10 @@ var currentListItem=null;
 var currentDialog='displayDialog';
 var depth=0;
 var path=[];
-var lastSave=null;
+var today;
+var thisWeek; // weeks since 1st Jan 1970
+var backupWeek=0; // week of last backup
+var changed=false; // any changes since last backup?
 var months="JanFebMarAprMayJunJulAugSepOctNovDec";
 var dragStart={};
 
@@ -332,13 +335,17 @@ function loadList() {
 				    showDialog('importDialog',true);
 				}
 				else { // monthly backups
-				    var today=new Date();
-				    console.log('this month: '+today.getMonth()+"; last save: "+lastSave);
-				    if(today.getMonth()!=lastSave) backup();
+				    today=new Date();
+				    thisWeek=Math.floor(today.getTime()/604800000); // weeks since 1/9/1970
+				    console.log('this week: '+thisWeek+"; backup week: "+backupWeek);
+				    if(thisWeek>backupWeek && changed) backup(); // weekly backups if changes
 				}
 			}
 			populateList();
 		}
+	}
+	request.onerror=function(err) {
+		alert('error loading data: '+err.message);
 	}
 }
 
@@ -460,22 +467,9 @@ id("fileChooser").addEventListener('change', function() {
   	fileReader.readAsText(file);
 });
 
-// CANCEL RESTORE
-/* id('cancelImportButton').addEventListener('click', function() {
-    showDialog('importDialog',false);
-}); */
-
 // BACKUP
 function backup() {
-  	var fileName="lists";
-	var date=new Date();
-	fileName+=date.getFullYear();
-	var num=date.getMonth()+1;
-	fileName+=(num<10)?'0':'';
-	fileName+=(num);
-	num=date.getDate();
-	fileName+=(num<10)?'0':'';
-	fileName+=num+".json";
+	var fileName='Bodley-'+thisWeek+'.json';
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
@@ -506,16 +500,18 @@ function backup() {
     		document.body.appendChild(a);
     		a.click();
 			display(fileName+" saved to downloads folder");
-			var today=new Date();
-			lastSave=today.getMonth();
-			window.localStorage.setItem('lastSave',lastSave); // remember month of backup
+			backupWeek=thisWeek;
+			window.localStorage.setItem('backupWeek',backupWeek); // remember week of backup
+			changed=false; // reset changes flag
+			window.localStorage.setItem('changed',changed);
 		}
 	}
 }
 
 // START-UP CODE
-lastSave=window.localStorage.getItem('lastSave');
-console.log("last save: "+lastSave);
+backupWeek=window.localStorage.getItem('backupWeek');
+changed=window.localStorage.getItem('changed');
+console.log("last backup week: "+backupWeek+"; changed: "+changed);
 // load items from database
 var request=window.indexedDB.open("listsDB");
 request.onsuccess=function (event) {
