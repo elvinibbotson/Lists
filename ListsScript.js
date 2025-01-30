@@ -467,12 +467,12 @@ id("fileChooser").addEventListener('change', function() {
 
 // BACKUP
 function backup() {
-  	var fileName="lists";
+  	var fileName="Lists-";
 	var date=new Date();
-	fileName+=date.getFullYear();
+	fileName+=date.getFullYear()+'-';
 	var num=date.getMonth()+1;
 	fileName+=(num<10)?'0':'';
-	fileName+=(num);
+	fileName+=(num)+'-';
 	num=date.getDate();
 	fileName+=(num<10)?'0':'';
 	fileName+=num+".json";
@@ -506,8 +506,7 @@ function backup() {
     		document.body.appendChild(a);
     		a.click();
 			display(fileName+" saved to downloads folder");
-			var today=new Date();
-			lastSave=today.getMonth();
+			lastSave=date.getMonth();
 			window.localStorage.setItem('lastSave',lastSave); // remember month of backup
 		}
 	}
