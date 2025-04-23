@@ -3,7 +3,7 @@ html, body {
   margin: 0;
   height: 100%;
   width: 100%;
-  font-family: 'Courier', monospace;
+  font-family: 'Courier', 'Lucida Console', monospace;
   font-weight: 400;
   font-display: optional;
   color: white;
@@ -80,7 +80,7 @@ li {
 	text-align: left;
 	font-size: 1.2em;
 	color: white;
-	background-color: #333;
+	background-color: dimgray;
 	display: block;
 }
 
@@ -183,7 +183,7 @@ li {
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  background-color: #333;
+  background-color: dimgray;
 }
 
 #displayDialog {
