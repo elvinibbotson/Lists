@@ -64,7 +64,7 @@ id('main').addEventListener('touchend', function(event) {
 
 // DISPLAY MESSAGES
 function display(message) {
-	id('message').innerText.value=message;
+	id('message').innerText=message;
 	showDialog('displayDialog',true);
 }
 
