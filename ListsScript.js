@@ -9,7 +9,7 @@ var notes=[]; // array of note items
 var items=[];
 var item=null;
 var list={};
-var currentListItem=null;
+// var currentListItem=null;
 var currentDialog='displayDialog';
 var depth=0;
 var path=[];
@@ -137,9 +137,7 @@ id('addListButton').addEventListener('click',function() {
 	showDialog('listDialog',true);
 })
 id('addNoteButton').addEventListener('click',function() {
-	
 	showDialog('noteDialog',true);
-
 })
 
 // MOVE UP/DOWN
@@ -152,6 +150,8 @@ function move(up) { // move note up/down
     if(!up && (notes.length-itemIndex<2)) return; // ...or down if already last
     if(up) item.index--; // shift this item up...
     else item.index++; // ...or down
+    items[itemIndex]=item;
+    /*
     var dbTransaction=db.transaction('items',"readwrite");
     var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
@@ -164,6 +164,8 @@ function move(up) { // move note up/down
 		item=notes[itemIndex];
 		if(up) item.index++;
 		else item.index--;
+		items[notes[itemIndex]]=item;
+		/*
 		putRequest=dbObjectStore.put(item);
 		putRequest.onsuccess=function(event) {
 			console.log('note '+item.id+" updated - index:"+item.index+' type:'+item.type+' owner:'+item.owner);
@@ -171,13 +173,19 @@ function move(up) { // move note up/down
 			loadList();
 		}
 		putRequest.onerror=function(event) {console.log("error updating note "+item.index);}
-	}
-	putRequest.onerror=function(event) {console.log("error updating note "+item.index);}
+		*/
+	console.log('note updated - index:'+item.index+' type:'+item.type+' path:'+item.path);
+	showDialog('noteDialog',false);
+	//putRequest.onerror=function(event) {console.log("error updating note "+item.index);}
 }
 
 // NOTE
 id('noteAddButton').addEventListener('click',function() {
 	item.text=id('noteField').value;
+	item.path=list.path;
+	items.push(item);
+	console.log("new note:"+item.text+"type:"+item.type+" path:"+item.path+" added");
+	/*
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
@@ -188,11 +196,16 @@ id('noteAddButton').addEventListener('click',function() {
 		loadList();
 	};
 	addRequest.onerror=function(event) {console.log("error adding new note");};
+	*/
 	showDialog('noteDialog',false);
+	saveData();
+	loadList();
 })
 id('noteSaveButton').addEventListener('click',function() {
 	item.text=id('noteField').value;
 	console.log('save note '+item.text);
+	items[itemIndex]=item;
+	/* OLD CODE...
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
@@ -202,9 +215,13 @@ id('noteSaveButton').addEventListener('click',function() {
 		loadList();
 	};
 	putRequest.onerror=function(event) {console.log("error updating note "+item.index);};
+	*/
+	console.log('note updated');
+	loadList();
 	showDialog('noteDialog',false);
 })
 id('deleteNoteButton').addEventListener('click',function() {
+	/*
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
@@ -215,10 +232,8 @@ id('deleteNoteButton').addEventListener('click',function() {
 		loadList();
 	}
 	request.onerror=function(event) {console.log('error deleting note')};
+	*/
 })
-/* id('cancelNoteButton').addEventListener('click',function() {
-    showDialog('noteDialog',false);
-}) */
 
 // LIST
 id('listAddButton').addEventListener('click',function() {
@@ -226,6 +241,8 @@ id('listAddButton').addEventListener('click',function() {
 	if(id('checkAlpha').checked) item.type|=4;
 	console.log('list type: '+item.type);
 	item.text=id('listField').value;
+	items.push(item);
+	/*
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
@@ -236,6 +253,7 @@ id('listAddButton').addEventListener('click',function() {
 		loadList();
 	};
 	addRequest.onerror=function(event) {console.log("error adding new list");};
+	*/
 	showDialog('listDialog',false);
 })
 id('listSaveButton').addEventListener('click',function() {
