@@ -299,14 +299,11 @@ function loadList() {
 	console.log("load children of list.path "+list.path+" - depth: "+depth);
 	// NEW CODE...
 	if(list.path=='') {
-		list.name="Lists";
 	    list.type=1;
+	    path=[];
 	}
 	else {
 		console.log("get list for "+list.path);
-		// item=items[itemIndex];
-		// list.name=item.text;
-		// list.type=item.type;
 	}
 	lists=[];
 	notes=[];
@@ -401,9 +398,9 @@ function populateList() {
 	    while(i<path.length) {
 	        list.path+='.'+path[i++];
 	    }
-	}
-	console.log('list.path: '+list.path);
+	    console.log('list.path: '+list.path);
 	id('heading').innerHTML=list.path;
+	}
 	// show lists first, sorted alphabetically
 	lists.sort(function(a,b){ // always sort list items alphabetically...
 		if(items[a].text.toUpperCase()<items[b].text.toUpperCase()) return -1;
