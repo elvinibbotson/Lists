@@ -185,7 +185,7 @@ li {
   -webkit-overflow-scrolling: touch;
   background-color: dimgray;
 }
-
+/*
 #displayDialog {
 	background-color: gray;
 	color: black;
@@ -193,7 +193,7 @@ li {
 	font-weight: bold;
 	display: none;
 }
-  
+*/
 #list {
     margin-top: 30px;
     list-style: none;

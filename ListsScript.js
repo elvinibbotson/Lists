@@ -3,10 +3,10 @@ function id(el) {
 }
 'use strict';
 // GLOBAL VARIABLES	
-var db=null;
-var logs=[];
+// var db=null;
 var lists=[]; // array of list items
 var notes=[]; // array of note items
+var items=[];
 var item=null;
 var list={};
 var currentListItem=null;
@@ -485,10 +485,9 @@ id("fileChooser").addEventListener('change', function() {
 	fileReader.addEventListener('load', function(evt) {
 		console.log("file read: "+evt.target.result);
 	  	var data=evt.target.result;
-		var items=JSON.parse(data);
+		items=JSON.parse(data);
 		console.log(items.length+" items loaded");
-		// NEW CODE...
-		window.localStorage.setItem('itemData',data);
+		saveData();
 		console.log('data imported and saved');
 		/* OLD CODE...
 		var dbTransaction=db.transaction('items',"readwrite");
@@ -560,6 +559,13 @@ function backup() {
     document.body.appendChild(a);
     a.click();
 	display(fileName+" saved to downloads folder");
+}
+
+// SAVE DATA
+function saveData() {
+	var data=JSON.stringify(items);
+	window.localStorage.setItem('items',data);
+	console.log('data saved');
 }
 
 // START-UP CODE
@@ -634,12 +640,13 @@ request.onerror=function(event) {
 // NEW CODE...
 var data=window.localStorage.getItem('items');
 if(data && data!='undefined') {
-	items=JSON.parse(data);
+	console.log('JSON: '+data);
+	items=JSON.parse(data).items;
 	console.log(items.length+' items');
 	list.path='';
 	loadList();
 }
-else toggleDialog('importDialog',true);
+else showDialog('importDialog',true);
 // implement service worker if browser is PWA friendly
 if (navigator.serviceWorker.controller) {
 	console.log('Active service worker found, no need to register')
