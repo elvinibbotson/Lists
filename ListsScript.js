@@ -8,6 +8,7 @@ var lists=[]; // array of list items
 var notes=[]; // array of note items
 var items=[];
 var item=null;
+var itemIndex;
 var list={};
 // var currentListItem=null;
 var currentDialog='displayDialog';
@@ -146,8 +147,8 @@ id('noteDownButton').addEventListener('click', function() {move(false);})
 function move(up) { // move note up/down
 	// for(var i in notes) console.log('note '+i+': '+notes[i].text+' id: '+notes[i].id);
 	console.log('move note '+item.id+' index: '+item.index+'; up is '+up);
-    if(up && itemIndex<1) return; // cannot move up if already first...
-    if(!up && (notes.length-itemIndex<2)) return; // ...or down if already last
+    if(up && item.index<1) return; // cannot move up if already first...
+    if(!up && (notes.length-item.index<2)) return; // ...or down if already last
     if(up) item.index--; // shift this item up...
     else item.index++; // ...or down
     items[itemIndex]=item;
@@ -438,9 +439,12 @@ function populateList() {
 		listItem.index=i;
 		listItem.innerText=items[lists[i]].text;
 		listItem.addEventListener('click',function() {
-	 		itemIndex=this.index;
-	 		item=items[lists[itemIndex]];
-	 		console.log('open list '+lists[itemIndex]);
+			itemIndex=lists[this.index];
+			console.log('open list '+itemIndex);
+			item=items[itemIndex];
+	 		// itemIndex=this.index;
+	 		// item=items[lists[itemIndex]];
+	 		// console.log('open list '+lists[itemIndex]);
 	 		console.log('name: '+item.text);
 			list.type=item.type;
 			list.name=item.text;
