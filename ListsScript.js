@@ -146,12 +146,15 @@ id('noteUpButton').addEventListener('click', function() {move(true);})
 id('noteDownButton').addEventListener('click', function() {move(false);})
 function move(up) { // move note up/down
 	// for(var i in notes) console.log('note '+i+': '+notes[i].text+' id: '+notes[i].id);
-	console.log('move note '+item.id+' index: '+item.index+'; up is '+up);
+	console.log('move note '+itemIndex+' index: '+item.index+'; up is '+up);
     if(up && item.index<1) return; // cannot move up if already first...
     if(!up && (notes.length-item.index<2)) return; // ...or down if already last
     if(up) item.index--; // shift this item up...
     else item.index++; // ...or down
     items[itemIndex]=item;
+    // change index of next item
+    // if(up) items[notes[]]
+    saveData();
     /*
     var dbTransaction=db.transaction('items',"readwrite");
     var dbObjectStore=dbTransaction.objectStore('items');
@@ -177,6 +180,7 @@ function move(up) { // move note up/down
 		*/
 	console.log('note updated - index:'+item.index+' type:'+item.type+' path:'+item.path);
 	showDialog('noteDialog',false);
+	loadList();
 	//putRequest.onerror=function(event) {console.log("error updating note "+item.index);}
 }
 
@@ -204,7 +208,7 @@ id('noteAddButton').addEventListener('click',function() {
 })
 id('noteSaveButton').addEventListener('click',function() {
 	item.text=id('noteField').value;
-	console.log('save note '+item.text);
+	console.log('save note '+itemIndex+': '+item.text);
 	items[itemIndex]=item;
 	/* OLD CODE...
 	var dbTransaction=db.transaction('items',"readwrite");
@@ -222,6 +226,11 @@ id('noteSaveButton').addEventListener('click',function() {
 	showDialog('noteDialog',false);
 })
 id('deleteNoteButton').addEventListener('click',function() {
+	items.splice(itemIndex,1);
+	saveData;
+	console.log('note deleted');
+	showDialog('noteDialog',false);
+	loadList();
 	/*
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
@@ -475,7 +484,7 @@ function populateList() {
 		id('list').appendChild(listItem);
 	}
 	for(var i in notes) { // ...then notes
-		console.log('note '+i+': '+items[notes[i].text]);
+		console.log('note '+i+': '+notes[i]+'; index: '+items[notes[i]].index+' - '+items[notes[i]].text);
 		notes[i].index=i;
 		if((list.type&2)&&(notes[i].checked)) continue; // don't show checked items
 		listItem=document.createElement('li');
@@ -493,9 +502,9 @@ function populateList() {
         itemText.innerText=items[notes[i]].text;
 	 	listItem.appendChild(itemText);
 	 	itemText.addEventListener('click',function(event) {
-			itemIndex=this.index;
-			item=items[notes[itemIndex]];
-			console.log('note '+itemIndex+': '+item.text+'; type '+item.type);
+			itemIndex=notes[this.index];
+			item=items[itemIndex];
+			console.log('note '+itemIndex+': '+item.text+'; type '+item.type+'; index: '+item.index);
 			id('noteTitle').innerHTML='note';
 			console.log('note is '+item.text);
 			id('noteField').value=item.text;
@@ -679,7 +688,7 @@ request.onerror=function(event) {
 var data=window.localStorage.getItem('items');
 if(data && data!='undefined') {
 	console.log('JSON: '+data);
-	items=JSON.parse(data).items;
+	items=JSON.parse(data);
 	console.log(items.length+' items');
 	list.path='';
 	loadList();
