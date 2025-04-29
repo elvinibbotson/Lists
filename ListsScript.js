@@ -262,6 +262,8 @@ id('listSaveButton').addEventListener('click',function() {
 	if(id('checkAlpha').checked) item.type|=4;
 	console.log('list type: '+item.type);
 	item.text=id('listField').value;
+	logs[itemIndex]=item;
+	/*
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
@@ -271,9 +273,18 @@ id('listSaveButton').addEventListener('click',function() {
 		loadList();
 	};
 	putRequest.onerror=function(event) {console.log("error updating list "+item.index);};
+	*/
 	showDialog('listDialog',false);
+	populateList();
 })
 id('deleteListButton').addEventListener('click',function() {
+	items.splice(itemIndex,1);
+	path.pop();
+	depth--;
+	console.log('list deleted');
+	showDialog('listDialog',false);
+	loadList();
+	/*
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
@@ -288,6 +299,7 @@ id('deleteListButton').addEventListener('click',function() {
 		loadList();
 	}
 	delRequest.onerror=function(event) {console.log('error deleting list')};
+	*/
 })
 /* id('cancelListButton').addEventListener('click',function() {
     showDialog('listDialog',false);
@@ -296,12 +308,15 @@ id('deleteListButton').addEventListener('click',function() {
 function checkItem(n) {
     notes[n].checked=!notes[n].checked;
     console.log(notes[n].text+" checked is "+notes[n].checked);
-    // update database
+    item=items[notes[n]];
+    item.checked=notes[n].checked;
+    items[notes[n]]=item;
+    /* update database
     var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
 	console.log("database ready");
 	var getRequest=dbObjectStore.get(notes[n].id);
-	getRequest.onsuccess=function(event) {
+	getRequest.onsuccess=function(event) otes[n{
 	    var data=event.target.result;
         data.checked=notes[n].checked;
         var putRequest=dbObjectStore.put(data);
@@ -311,6 +326,7 @@ function checkItem(n) {
 		putRequest.onerror=function(event) {console.log("error updating item "+notes[n].text);};
 	}
 	getRequest.onerror=function(event) {console.log('error getting item')};
+	*/
 }
 
 // LOAD LIST ITEMS
