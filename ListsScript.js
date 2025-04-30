@@ -145,11 +145,12 @@ id('addNoteButton').addEventListener('click',function() {
 id('noteUpButton').addEventListener('click', function() {move(true);})
 id('noteDownButton').addEventListener('click', function() {move(false);})
 function move(up) { // move note up/down
+	var nextItem;
 	// for(var i in notes) console.log('note '+i+': '+notes[i].text+' id: '+notes[i].id);
 	console.log('move note '+itemIndex+' index: '+item.index+'; up is '+up);
     if(up && item.index<1) return; // cannot move up if already first...
     if(!up && (notes.length-item.index<2)) return; // ...or down if already last
-    if(up) item.index--; // shift this item up...
+    if(up)  item.index--; // shift this item up...
     else item.index++; // ...or down
     items[itemIndex]=item;
     // change index of next item
@@ -188,8 +189,14 @@ function move(up) { // move note up/down
 id('noteAddButton').addEventListener('click',function() {
 	item.text=id('noteField').value;
 	item.path=list.path;
+	item.type=list.type-1;
+	if(list.type<4) {
+		var highest=items[notes[notes.length-1]].index;
+		console.log('highest index: '+highest);
+		item.index=highest+1;
+	}
 	items.push(item);
-	console.log("new note:"+item.text+"type:"+item.type+" path:"+item.path+" added");
+	console.log("new note:"+item.text+"type:"+item.type+" path:"+item.path+' index:'+item.index+" added");
 	/*
 	var dbTransaction=db.transaction('items',"readwrite");
 	var dbObjectStore=dbTransaction.objectStore('items');
