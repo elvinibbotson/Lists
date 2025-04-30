@@ -532,7 +532,8 @@ id("fileChooser").addEventListener('change', function() {
 	fileReader.addEventListener('load', function(evt) {
 		console.log("file read: "+evt.target.result);
 	  	var data=evt.target.result;
-		items=JSON.parse(data);
+		var json=JSON.parse(data);
+		items=json.items;
 		console.log(items.length+" items loaded");
 		saveData();
 		console.log('data imported and saved');
@@ -594,7 +595,7 @@ function backup() {
 	}
 	*/
 	// NEW CODE...
-	var data={'items': items};
+	data={'items': items};
 	var json=JSON.stringify(data);
 	var blob=new Blob([json], {type:"data:application/json"});
   	var a=document.createElement('a');
