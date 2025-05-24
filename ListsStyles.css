@@ -10,10 +10,8 @@ html, body {
   background-color: black;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale; }
-
 html {
   overflow: hidden; }
-
 body {
   display: -webkit-box;
   display: -webkit-flex;
@@ -39,24 +37,20 @@ body {
       -ms-flex-line-pack: stretch;
           align-content: stretch;
 }
- 
 input[type=text] {
 	font-size: 1.5em;
 	height: 24px;
 }
-
 input[type=password] {
 	font-size: 1.5em;
 	height: 24px;
 	width: 150px;
 	margin-left: 20px;
 }
-
 input[type=radio] {
     width: 24px;
     height: 24px;
 }
-
 input[type=checkbox] {
     width: 24px;
     height: 24px;
@@ -64,16 +58,14 @@ input[type=checkbox] {
     margin-right: 10px;
     float: left;
 }
-
 textarea {
+	margin: 10px;
     font-size: 1.2em;
 }
-
 label {
     font-size: 1.5em;
     vertical-align: top;
 }
-
 li {
 	width: 100%;
 	margin-bottom: 5px;
@@ -83,7 +75,6 @@ li {
 	background-color: dimgray;
 	display: block;
 }
-
 .dialog {
   	position: fixed;
 	left: 0;
@@ -99,22 +90,18 @@ li {
 	z-index: 20;
 	display: none;
 }
-
 .dialog-title {
   font-family: 'Courier', monospace;
   font-size: 1.5em;
   font-weight: bold;
 }
-
 .textBox {
 	color: white;
 	background-color: dimgray;
 }
-
 .dialog-buttons {
     margin: 10px;
 }
-
 .icon-button {
     width: 36px;
     height: 24px;
@@ -122,7 +109,6 @@ li {
     padding: 5px;
     margin: 12px;
 }
-
 .text-button {
 	border: 2px solid white;
 	border-radius: 10px;
@@ -134,7 +120,6 @@ li {
 	background-color:gray;
 	/* float: right; */
 }
-
 .round-button {
 	display: block;
 	position: fixed;
@@ -147,14 +132,12 @@ li {
 	background: gray;
 	z-index: 50;
 }
-
 .round-button img {
 	display: block;
 	width: 24px;
 	height: 24px;
 	padding: 13px;
 }
-
 #header {
     position: fixed;
     top: 0;
@@ -165,13 +148,11 @@ li {
     background-color: black;
     z-index: 10;
 }
-
 #heading {
   color: white;
   font-weight: bold;
   font-size: 1.5em;
 }
-
 #main {
     width: 100%;
     position: relative;
@@ -185,15 +166,6 @@ li {
   -webkit-overflow-scrolling: touch;
   background-color: dimgray;
 }
-/*
-#displayDialog {
-	background-color: gray;
-	color: black;
-	font-size: 2em;
-	font-weight: bold;
-	display: none;
-}
-*/
 #list {
     margin-top: 30px;
     list-style: none;
@@ -203,38 +175,27 @@ li {
     padding: 0 0.5em;
     z-index=10;
 }
-
 #listUpButton, #noteUpButton {
     background: url(upButton24px.svg) center center no-repeat;
     float: left;
 }
-
 #listDownButton, #noteDownButton {
     background: url(downButton24px.svg) center center no-repeat;
      float: left;
 }
-
 #deleteListButton, #deleteNoteButton {
 	float: left;
 	margin-right: 48px;
     background: url(deleteButton24px.svg) center center no-repeat;
 }
-/*
-#cancelAddButton, #cancelListButton, #cancelNoteButton, #dataCancelButton, #cancelImportButton {
-    background: url(cancelButton24px.svg) center center no-repeat;
-}
-*/
-
 #listAddButton, #noteAddButton {
     background: url(addButton24px.svg) center center no-repeat;
     float: right;
 }
-
 #listSaveButton, #noteSaveButton {
     background: url(okButton24px.svg) center center no-repeat;
     float: right;
 }
-
 #fileChooser {
 	font-size: 1.5em;
 }

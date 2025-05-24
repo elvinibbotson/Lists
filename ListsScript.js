@@ -3,14 +3,12 @@ function id(el) {
 }
 'use strict';
 // GLOBAL VARIABLES	
-// var db=null;
 var lists=[]; // array of list items
 var notes=[]; // array of note items
 var items=[];
 var item=null;
 var itemIndex;
 var list={};
-// var currentListItem=null;
 var currentDialog='displayDialog';
 var depth=0;
 var path=[];
@@ -62,13 +60,11 @@ id('main').addEventListener('touchend', function(event) {
 		id('buttonNew').style.display='block';
     }
 })
-
 // DISPLAY MESSAGES
 function display(message) {
 	id('message').innerText=message;
 	showDialog('displayDialog',true);
 }
-
 // SHOW/HIDE DIALOG
 function showDialog(dialog,show) {
     console.log('show '+dialog+': '+show);
@@ -85,7 +81,6 @@ function showDialog(dialog,show) {
     }
     console.log('current dialog: '+currentDialog);
 }
-
 // TAP ON HEADER
 id('heading').addEventListener('click',function() {
 	if(depth>0) { // list heading - show item edit dialog
@@ -94,7 +89,6 @@ id('heading').addEventListener('click',function() {
 		console.log('edit list header - '+(lists.length+notes.length)+' items');
 		id('checkAlpha').checked=list.type&4;
 		id('checkBoxes').checked=list.type&2;
-		// if((lists.length>0)||(notes.length>0)) { // can only delete empty lists
 		if((lists.length>0)||(id('list').getElementsByTagName('li').lenght>0)) {
 			id('deleteListButton').style.display='none';
 			console.log('disable delete');
@@ -106,7 +100,6 @@ id('heading').addEventListener('click',function() {
 	}
 	else showDialog('dataDialog',true);
 });
-
 // ADD NEW ITEM
 id('buttonNew').addEventListener('click', function(){
 	item={};
@@ -140,7 +133,6 @@ id('addListButton').addEventListener('click',function() {
 id('addNoteButton').addEventListener('click',function() {
 	showDialog('noteDialog',true);
 })
-
 // MOVE UP/DOWN
 id('noteUpButton').addEventListener('click', function() {move(true);})
 id('noteDownButton').addEventListener('click', function() {move(false);})
@@ -153,38 +145,11 @@ function move(up) { // move note up/down
     if(up)  item.index--; // shift this item up...
     else item.index++; // ...or down
     items[itemIndex]=item;
-    // change index of next item
-    // if(up) items[notes[]]
     saveData();
-    /*
-    var dbTransaction=db.transaction('items',"readwrite");
-    var dbObjectStore=dbTransaction.objectStore('items');
-	console.log("database ready");
-	var putRequest=dbObjectStore.put(item);
-	putRequest.onsuccess=function(event) {
-		console.log('note '+item.id+" updated - index:"+item.index+' type:'+item.type+' owner:'+item.owner);
-		// now move item above/below
-		if(up) {itemIndex--;}
-		else {itemIndex++;}
-		item=notes[itemIndex];
-		if(up) item.index++;
-		else item.index--;
-		items[notes[itemIndex]]=item;
-		/*
-		putRequest=dbObjectStore.put(item);
-		putRequest.onsuccess=function(event) {
-			console.log('note '+item.id+" updated - index:"+item.index+' type:'+item.type+' owner:'+item.owner);
-			showDialog('noteDialog',false);
-			loadList();
-		}
-		putRequest.onerror=function(event) {console.log("error updating note "+item.index);}
-		*/
 	console.log('note updated - index:'+item.index+' type:'+item.type+' path:'+item.path);
 	showDialog('noteDialog',false);
 	loadList();
-	//putRequest.onerror=function(event) {console.log("error updating note "+item.index);}
 }
-
 // NOTE
 id('noteAddButton').addEventListener('click',function() {
 	item.text=id('noteField').value;
@@ -197,18 +162,6 @@ id('noteAddButton').addEventListener('click',function() {
 	}
 	items.push(item);
 	console.log("new note:"+item.text+"type:"+item.type+" path:"+item.path+' index:'+item.index+" added");
-	/*
-	var dbTransaction=db.transaction('items',"readwrite");
-	var dbObjectStore=dbTransaction.objectStore('items');
-	console.log("database ready");
-	var addRequest=dbObjectStore.add(item);
-	addRequest.onsuccess=function(event) {
-		item.id=event.target.result;
-		console.log("new note:"+item.text+"type:"+item.type+" owner:"+item.owner+" added - id is "+item.id);
-		loadList();
-	};
-	addRequest.onerror=function(event) {console.log("error adding new note");};
-	*/
 	showDialog('noteDialog',false);
 	saveData();
 	loadList();
@@ -217,17 +170,6 @@ id('noteSaveButton').addEventListener('click',function() {
 	item.text=id('noteField').value;
 	console.log('save note '+itemIndex+': '+item.text);
 	items[itemIndex]=item;
-	/* OLD CODE...
-	var dbTransaction=db.transaction('items',"readwrite");
-	var dbObjectStore=dbTransaction.objectStore('items');
-	console.log("database ready");
-	var putRequest=dbObjectStore.put(item);
-	putRequest.onsuccess=function(event) {
-		console.log('note '+item.index+" updated");
-		loadList();
-	};
-	putRequest.onerror=function(event) {console.log("error updating note "+item.index);};
-	*/
 	console.log('note updated');
 	loadList();
 	showDialog('noteDialog',false);
@@ -238,18 +180,6 @@ id('deleteNoteButton').addEventListener('click',function() {
 	console.log('note deleted');
 	showDialog('noteDialog',false);
 	loadList();
-	/*
-	var dbTransaction=db.transaction('items',"readwrite");
-	var dbObjectStore=dbTransaction.objectStore('items');
-	console.log("database ready");
-	var request=dbObjectStore.delete(item.id);
-	request.onsuccess=function(event) {
-		console.log('note deleted');
-		showDialog('noteDialog',false);
-		loadList();
-	}
-	request.onerror=function(event) {console.log('error deleting note')};
-	*/
 })
 
 // LIST
@@ -259,18 +189,6 @@ id('listAddButton').addEventListener('click',function() {
 	console.log('list type: '+item.type);
 	item.text=id('listField').value;
 	items.push(item);
-	/*
-	var dbTransaction=db.transaction('items',"readwrite");
-	var dbObjectStore=dbTransaction.objectStore('items');
-	console.log("database ready");
-	var addRequest=dbObjectStore.add(item);
-	addRequest.onsuccess=function(event) {
-		item.id=event.target.result;
-		console.log("new list added - id is "+item.id);
-		loadList();
-	};
-	addRequest.onerror=function(event) {console.log("error adding new list");};
-	*/
 	showDialog('listDialog',false);
 })
 id('listSaveButton').addEventListener('click',function() {
@@ -279,17 +197,6 @@ id('listSaveButton').addEventListener('click',function() {
 	console.log('list type: '+item.type);
 	item.text=id('listField').value;
 	logs[itemIndex]=item;
-	/*
-	var dbTransaction=db.transaction('items',"readwrite");
-	var dbObjectStore=dbTransaction.objectStore('items');
-	console.log("database ready");
-	var putRequest=dbObjectStore.put(item);
-	putRequest.onsuccess=function(event) {
-		console.log('list '+item.index+" updated");
-		loadList();
-	};
-	putRequest.onerror=function(event) {console.log("error updating list "+item.index);};
-	*/
 	showDialog('listDialog',false);
 	populateList();
 })
@@ -300,51 +207,14 @@ id('deleteListButton').addEventListener('click',function() {
 	console.log('list deleted');
 	showDialog('listDialog',false);
 	loadList();
-	/*
-	var dbTransaction=db.transaction('items',"readwrite");
-	var dbObjectStore=dbTransaction.objectStore('items');
-	console.log("database ready");
-	var delRequest=dbObjectStore.delete(list.id);
-	delRequest.onsuccess=function(event) {
-		console.log('list deleted');
-		showDialog('listDialog',false);
-		depth--;
-		path.pop();
-		list.id=list.owner;
-		console.log('back to list '+list.id);
-		loadList();
-	}
-	delRequest.onerror=function(event) {console.log('error deleting list')};
-	*/
 })
-/* id('cancelListButton').addEventListener('click',function() {
-    showDialog('listDialog',false);
-}) */
-
 function checkItem(n) {
     notes[n].checked=!notes[n].checked;
     console.log(notes[n].text+" checked is "+notes[n].checked);
     item=items[notes[n]];
     item.checked=notes[n].checked;
     items[notes[n]]=item;
-    /* update database
-    var dbTransaction=db.transaction('items',"readwrite");
-	var dbObjectStore=dbTransaction.objectStore('items');
-	console.log("database ready");
-	var getRequest=dbObjectStore.get(notes[n].id);
-	getRequest.onsuccess=function(event) otes[n{
-	    var data=event.target.result;
-        data.checked=notes[n].checked;
-        var putRequest=dbObjectStore.put(data);
-		putRequest.onsuccess=function(event) {
-			console.log('item '+notes[n].text+" updated");
-		};
-		putRequest.onerror=function(event) {console.log("error updating item "+notes[n].text);};
-	}
-	getRequest.onerror=function(event) {console.log('error getting item')};
-	*/
 }
-
 // LOAD LIST ITEMS
 function loadList() {
 	console.log("load children of list.path "+list.path+" - depth: "+depth);
@@ -372,73 +242,10 @@ function loadList() {
 		return;
 	}
 	else populateList();
-	/* OLD CODE...
-	var dbTransaction=db.transaction('items',"readwrite");
-	var dbObjectStore=dbTransaction.objectStore('items');
-	console.log("database ready");
-	var item={};
-	if(list.id!==null) {
-		console.log("get list item "+list.id);
-		var request=dbObjectStore.get(list.id);
-		request.onsuccess=function() {
-			item=event.target.result;
-			console.log("list item "+item.text+"; type: "+item.type+"; owner: "+item.owner);
-			var t=item.text;
-			list.name=t;
-			list.type=item.type;
-			
-			if(path) {
-				owner=path[0];
-				var i=1;
-				while(i<path.length) owner+='.'+path[i++];
-				console.log('owner: '+owner+'; path: '+path);
-			}
-		};
-		request.onerror=function() {console.log("error retrieving item "+list.id);}
-	}
-	else {
-	    list.name="Lists";
-	    list.type=1;
-	    owner='';
-	}
-	lists=[];
-	notes=[];
-	request=dbObjectStore.openCursor();
-	request.onsuccess=function(event) {
-		var cursor=event.target.result;
-		if(cursor) {
-			if(cursor.value.owner==list.id) { // just items in this list
-				// NEW CODE TO MAKE NEW DATA SET...
-				var log={};
-				log.owner=owner;
-				log.text=cursor.value.text;
-				log.type=cursor.value.type;
-				log.index=cursor.value.index;
-				logs.push(log);
-				
-				if(cursor.value.type<1) notes.push(cursor.value); // add to notes[] if type 0...
-				else lists.push(cursor.value); // ...otherwise add to lists[]
-				// items.push(cursor.value);
-				console.log("item id: "+cursor.value.id+"; index: "+cursor.value.index+"; "+cursor.value.text+"; type: "+cursor.value.type+"; owner: "+cursor.value.owner);
-			}
-			cursor.continue ();
-		}
-		else {
-			console.log("No more entries! "+lists.length+" lists; "+notes.length+' notes');
-			// NEW CODE TO MAKE NEW DATA SET...
-			var data=JSON.stringify(logs);
-			window.localStorage.setItem('items',data);
-			
-			populateList();
-		}
-	}
-	*/
 }
-
 // POPULATE LIST
 function populateList() {
     var listItem;
-    // var listPath;
     id("list").innerHTML=""; // clear list
 	console.log("populate list for path "+path+" with "+(lists.length+notes.length)+" items - depth: "+depth);
 	console.log('list type is '+list.type);
@@ -474,9 +281,6 @@ function populateList() {
 			itemIndex=lists[this.index];
 			console.log('open list '+itemIndex);
 			item=items[itemIndex];
-	 		// itemIndex=this.index;
-	 		// item=items[lists[itemIndex]];
-	 		// console.log('open list '+lists[itemIndex]);
 	 		console.log('name: '+item.text);
 			list.type=item.type;
 			list.name=item.text;
@@ -525,12 +329,9 @@ function populateList() {
 		id('list').appendChild(listItem);
 	}
 }
-
 // DATA
 id('backupButton').addEventListener('click',function() {showDialog('dataDialog',false); backup();});
 id('importButton').addEventListener('click',function() {showDialog('importDialog',true)});
-/* id('dataCancelButton').addEventListener('click',function() {showDialog('dataDialog',false)}); */
-
 // RESTORE BACKUP
 id("fileChooser").addEventListener('change', function() {
 	var file=id('fileChooser').files[0];
@@ -544,18 +345,6 @@ id("fileChooser").addEventListener('change', function() {
 		console.log(items.length+" items loaded");
 		saveData();
 		console.log('data imported and saved');
-		/* OLD CODE...
-		var dbTransaction=db.transaction('items',"readwrite");
-		var dbObjectStore=dbTransaction.objectStore('items');
-		for(var i=0;i<items.length;i++) {
-			console.log("save "+items[i].text);
-			var request=dbObjectStore.add(items[i]);
-			request.onsuccess=function(e) {
-				console.log(items.length+" items added to database");
-			};
-			request.onerror=function(e) {console.log("error adding item");};
-		}
-		*/
 		showDialog('importDialog',false);
 		display("backup imported - restart");
   	});
@@ -565,43 +354,6 @@ id("fileChooser").addEventListener('change', function() {
 // BACKUP
 function backup() {
   	var fileName="ListsData.json";
-	/* OLD CODE...
-	var dbTransaction=db.transaction('items',"readwrite");
-	var dbObjectStore=dbTransaction.objectStore('items');
-	console.log("database ready");
-	var request=dbObjectStore.openCursor();
-	var items=[];
-	dbTransaction=db.transaction('items',"readwrite");
-	console.log("indexedDB transaction ready");
-	dbObjectStore=dbTransaction.objectStore('items');
-	console.log("indexedDB objectStore ready");
-	request=dbObjectStore.openCursor();
-	request.onsuccess=function(event) {  
-		var cursor=event.target.result;  
-    		if(cursor) { // read in every item
-			    items.push(cursor.value);
-			    cursor.continue();  
-    		}
-		else {
-			console.log(items.length+" items - save");
-			var data={'items': items};
-			var json=JSON.stringify(data);
-			var blob=new Blob([json], {type:"data:application/json"});
-  			var a=document.createElement('a');
-			a.style.display='none';
-    		var url=window.URL.createObjectURL(blob);
-			console.log(fileName+" ready to save: "+blob.size+" bytes");
-   			a.href=url;
-   			a.download=fileName;
-    		document.body.appendChild(a);
-    		a.click();
-			display(fileName+" saved to downloads folder");
-			lastSave=date.getMonth();
-			window.localStorage.setItem('lastSave',lastSave); // remember month of backup
-		}
-	}
-	*/
-	// NEW CODE...
 	data={'items': items};
 	var json=JSON.stringify(data);
 	var blob=new Blob([json], {type:"data:application/json"});
@@ -615,84 +367,13 @@ function backup() {
     a.click();
 	display(fileName+" saved to downloads folder");
 }
-
 // SAVE DATA
 function saveData() {
 	var data=JSON.stringify(items);
 	window.localStorage.setItem('items',data);
 	console.log('data saved');
 }
-
 // START-UP CODE
-// lastSave=window.localStorage.getItem('lastSave');
-// console.log("last save: "+lastSave);
-// load items from database
-/* OLD CODE...
-var request=window.indexedDB.open("listsDB");
-request.onsuccess=function (event) {
-	db=event.target.result;
-	console.log("DB open");
-	var dbTransaction=db.transaction('items','readwrite');
-	console.log("indexedDB transaction ready");
-	var dbObjectStore=dbTransaction.objectStore('items');
-	console.log("indexedDB objectStore ready");
-	// NEW CODE TO BUILD AND SAVE ARRAY OF ITEMS
-	console.log('create item array');
-	items=[];
-	ids=[];
-	paths=[];
-	var p; // parent/path
-	var request=dbObjectStore.openCursor();
-	request.onsuccess=function(event) {
-		var cursor=event.target.result;
-		if(cursor) {
-			p=cursor.value.owner;
-			if(p==null) p=''; // top-level items have no owner
-			else {
-				var n=ids.indexOf(p);
-				p=paths[n];
-			}
-			if(cursor.value.type>0) { // a list item - add to ids and paths arrays
-				ids.push(cursor.value.id);
-				if(p.length>0) paths.push(p+'.'+cursor.value.text);
-				else paths.push(cursor.value.text);
-				console.log('add id & path; array sizes: '+ids.length+', '+paths.length);
-			}
-			item={};
-			item.path=p;
-			item.type=cursor.value.type;
-			item.text=cursor.value.text;
-			if(cursor.value.index) item.index=cursor.value.index;
-			if(cursor.value.checked) item.checked=cursor.value.checked;
-			items.push(item);
-			console.log('add item '+item.text);
-			cursor.continue();
-		}
-		else { // all items processed - save items
-			console.log('no more items - save items[]');
-			var data=JSON.stringify(items);
-			window.localStorage.setItem('items',data);
-			console.log('saved');
-		}
-		
-		// list.id=list.owner=null;
-		// loadList();
-	};
-};
-request.onupgradeneeded=function(event) {
-	db=event.currentTarget.result;
-	if(!db.objectStoreNames.contains('items')) {
-		var dbObjectStore=db.createObjectStore("items",{ keyPath:"id",autoIncrement:true });
-		console.log("items store created");
-	}
-	else console.log("items store exists");
-	console.log("database ready");
-}
-request.onerror=function(event) {
-	alert("indexedDB error code "+event.target.errorCode);
-};
-*/
-// NEW CODE...
 var data=window.localStorage.getItem('items');
 if(data && data!='undefined') {
 	console.log('JSON: '+data);
