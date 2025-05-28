@@ -15,6 +15,7 @@ var path=[];
 var lastSave=null;
 var months="JanFebMarAprMayJunJulAugSepOctNovDec";
 var dragStart={};
+var root; // OPFS root directory
 
 // DRAG TO CHANGE DEPTH
 id('main').addEventListener('touchstart', function(event) {
@@ -36,7 +37,7 @@ id('main').addEventListener('touchend', function(event) {
             populateList(); // ...or just return from 'check' view
             return;
         }
-        list.id=list.owner;
+        // list.id=list.owner;
         path.pop();
         depth--;
         if(depth<1) {
@@ -110,7 +111,7 @@ id('buttonNew').addEventListener('click', function(){
 	id('deleteNoteButton').style.display='none';
 	id('noteSaveButton').style.display='none';
 	id('noteAddButton').style.display='block';
-	item.owner=list.id;
+	// item.owner=list.id;
 	item.type=0;
     if(depth<2 && list.type>0) { // list above depth 2 - can add sub-list...
         showDialog('addDialog',true);
@@ -126,7 +127,7 @@ id('addListButton').addEventListener('click',function() {
 	id('listSaveButton').style.display='none';
 	id('listAddButton').style.display='block';
 	item={};
-    item.owner=list.id;
+    // item.owner=list.id;
     item.type=1;
 	showDialog('listDialog',true);
 })
@@ -145,7 +146,7 @@ function move(up) { // move note up/down
     if(up)  item.index--; // shift this item up...
     else item.index++; // ...or down
     items[itemIndex]=item;
-    saveData();
+    writeData(); // WAS saveData();
 	console.log('note updated - index:'+item.index+' type:'+item.type+' path:'+item.path);
 	showDialog('noteDialog',false);
 	loadList();
@@ -163,7 +164,7 @@ id('noteAddButton').addEventListener('click',function() {
 	items.push(item);
 	console.log("new note:"+item.text+"type:"+item.type+" path:"+item.path+' index:'+item.index+" added");
 	showDialog('noteDialog',false);
-	saveData();
+	writeData(); // WAS saveData();
 	loadList();
 })
 id('noteSaveButton').addEventListener('click',function() {
@@ -176,7 +177,7 @@ id('noteSaveButton').addEventListener('click',function() {
 })
 id('deleteNoteButton').addEventListener('click',function() {
 	items.splice(itemIndex,1);
-	saveData;
+	writeData(); // WAS saveData();
 	console.log('note deleted');
 	showDialog('noteDialog',false);
 	loadList();
@@ -330,6 +331,36 @@ function populateList() {
 	}
 }
 // DATA
+async function readData() {
+	root=await navigator.storage.getDirectory();
+	console.log('OPFS root directory: '+root);
+	var handle=await root.getFileHandle('ListsData');
+	var file=await handle.getFile();
+	console.log('read from file '+file);
+	var loader=new FileReader();
+    loader.addEventListener('load',function(evt) {
+    	var data=evt.target.result;
+    	console.log('data: '+data.length+' bytes');
+    	// var json=JSON.parse(data);
+    	// items=json.items;
+    	items=JSON.parse(data);
+		console.log(items.length+' items');
+		list.path='';
+		loadList();
+    });
+    loader.addEventListener('error',function(event) {
+    	console.log('load failed - '+event);
+    });
+	loader.readAsText(file);
+}
+async function writeData() {
+	var handle=await root.getFileHandle('ListsData',{create:true});
+	var data=JSON.stringify(items);
+	var writable=await handle.createWritable();
+    await writable.write(data);
+    await writable.close();
+	console.log('data saved to ListsData');
+}
 id('backupButton').addEventListener('click',function() {showDialog('dataDialog',false); backup();});
 id('importButton').addEventListener('click',function() {showDialog('importDialog',true)});
 // RESTORE BACKUP
@@ -343,14 +374,13 @@ id("fileChooser").addEventListener('change', function() {
 		var json=JSON.parse(data);
 		items=json.items;
 		console.log(items.length+" items loaded");
-		saveData();
+		writeData(); // WAS saveData();
 		console.log('data imported and saved');
 		showDialog('importDialog',false);
 		display("backup imported - restart");
   	});
   	fileReader.readAsText(file);
 });
-
 // BACKUP
 function backup() {
   	var fileName="ListsData.json";
@@ -367,13 +397,16 @@ function backup() {
     a.click();
 	display(fileName+" saved to downloads folder");
 }
-// SAVE DATA
+/* SAVE DATA
 function saveData() {
 	var data=JSON.stringify(items);
 	window.localStorage.setItem('items',data);
 	console.log('data saved');
 }
+*/
 // START-UP CODE
+readData();
+/*
 var data=window.localStorage.getItem('items');
 if(data && data!='undefined') {
 	console.log('JSON: '+data);
@@ -383,6 +416,7 @@ if(data && data!='undefined') {
 	loadList();
 }
 else showDialog('importDialog',true);
+*/
 // implement service worker if browser is PWA friendly
 if (navigator.serviceWorker.controller) {
 	console.log('Active service worker found, no need to register')
