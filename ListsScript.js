@@ -334,6 +334,8 @@ function populateList() {
 async function readData() {
 	root=await navigator.storage.getDirectory();
 	console.log('OPFS root directory: '+root);
+	var persisted=await navigator.storage.persist();
+	console.log('persisted: '+persisted);
 	var handle=await root.getFileHandle('ListsData');
 	var file=await handle.getFile();
 	console.log('read from file '+file);
