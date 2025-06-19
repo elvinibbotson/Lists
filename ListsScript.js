@@ -15,8 +15,8 @@ var path=[];
 var lastSave=null;
 var months="JanFebMarAprMayJunJulAugSepOctNovDec";
 var dragStart={};
-var root; // OPFS root directory
-
+var backupDay;
+// var root; // OPFS root directory
 // DRAG TO CHANGE DEPTH
 id('main').addEventListener('touchstart', function(event) {
     // console.log(event.changedTouches.length+" touches");
@@ -182,7 +182,6 @@ id('deleteNoteButton').addEventListener('click',function() {
 	showDialog('noteDialog',false);
 	loadList();
 })
-
 // LIST
 id('listAddButton').addEventListener('click',function() {
 	if(id('checkBoxes').checked) item.type|=2;
@@ -331,7 +330,25 @@ function populateList() {
 	}
 }
 // DATA
-async function readData() {
+async function load() {
+	var data=localStorage.getItem('ListsData');
+	if(!data) {
+		id('restoreMessage').innerText='no data - restore?';
+		showDialog('restoreDialog',true);
+		return;
+	}
+	items=JSON.parse(data);
+	console.log(items.length+' items');
+	list.path='';
+	loadList();
+	var today=Math.floor(new Date().getTime()/86400000);
+	var days=today-backupDay;
+	if(days>15) days='ages';
+	if(days>4) { // backup reminder every 5 days
+		id('backupMessage').innerText=days+' since last backup';
+		toggleDialog('backupDialog',true);
+	}
+	/* OLD OPFS METHOD
 	root=await navigator.storage.getDirectory();
 	console.log('OPFS root directory: '+root);
 	var persisted=await navigator.storage.persist();
@@ -354,6 +371,12 @@ async function readData() {
     	console.log('load failed - '+event);
     });
 	loader.readAsText(file);
+	*/
+}
+function save() {
+	var data=JSON.stringify(items);
+	window.localStorage.setItem('ListsData',data);
+	console.log('data saved');
 }
 async function writeData() {
 	var handle=await root.getFileHandle('ListsData',{create:true});
@@ -364,8 +387,7 @@ async function writeData() {
 	console.log('data saved to ListsData');
 }
 id('backupButton').addEventListener('click',function() {showDialog('dataDialog',false); backup();});
-id('importButton').addEventListener('click',function() {showDialog('importDialog',true)});
-// RESTORE BACKUP
+id('restoreButton').addEventListener('click',function() {showDialog('restoreDialog',true)});
 id("fileChooser").addEventListener('change', function() {
 	var file=id('fileChooser').files[0];
 	console.log("file: "+file+" name: "+file.name);
@@ -376,14 +398,16 @@ id("fileChooser").addEventListener('change', function() {
 		var json=JSON.parse(data);
 		items=json.items;
 		console.log(items.length+" items loaded");
-		writeData(); // WAS saveData();
+		save(); // WAS writeData();
 		console.log('data imported and saved');
-		showDialog('importDialog',false);
-		display("backup imported - restart");
+		showDialog('restoreDialog',false);
+		load();
+		// display("backup restored - restart");
   	});
   	fileReader.readAsText(file);
+  	
 });
-// BACKUP
+id('confirmBackup').addEventListener('click',backup);
 function backup() {
   	var fileName="ListsData.json";
 	data={'items': items};
@@ -399,15 +423,13 @@ function backup() {
     a.click();
 	display(fileName+" saved to downloads folder");
 }
-/* SAVE DATA
-function saveData() {
-	var data=JSON.stringify(items);
-	window.localStorage.setItem('items',data);
-	console.log('data saved');
-}
-*/
+// SAVE DATA
+
 // START-UP CODE
-readData();
+backupDay=window.localStorage.getItem('backupDay');
+if(backupDay) console.log('last backup on day '+backupDay);
+else backupDay=0;
+load();
 /*
 var data=window.localStorage.getItem('items');
 if(data && data!='undefined') {
