@@ -1,6 +1,6 @@
 function id(el) {
 	return document.getElementById(el);
-}
+} 
 'use strict';
 // GLOBAL VARIABLES	
 var lists=[]; // array of list items
@@ -129,6 +129,7 @@ id('addListButton').addEventListener('click',function() {
 	item={};
     // item.owner=list.id;
     item.type=1;
+    item.path=list.path;
 	showDialog('listDialog',true);
 })
 id('addNoteButton').addEventListener('click',function() {
@@ -146,7 +147,7 @@ function move(up) { // move note up/down
     if(up)  item.index--; // shift this item up...
     else item.index++; // ...or down
     items[itemIndex]=item;
-    writeData(); // WAS saveData();
+    save(); // WAS saveData();
 	console.log('note updated - index:'+item.index+' type:'+item.type+' path:'+item.path);
 	showDialog('noteDialog',false);
 	loadList();
@@ -157,14 +158,17 @@ id('noteAddButton').addEventListener('click',function() {
 	item.path=list.path;
 	item.type=list.type-1;
 	if(list.type<4) {
-		var highest=items[notes[notes.length-1]].index;
+		if(notes.length>0) {
+			var highest=items[notes[notes.length-1]].index;
 		console.log('highest index: '+highest);
 		item.index=highest+1;
+		}
+		else item.index=0;
 	}
 	items.push(item);
 	console.log("new note:"+item.text+"type:"+item.type+" path:"+item.path+' index:'+item.index+" added");
 	showDialog('noteDialog',false);
-	writeData(); // WAS saveData();
+	save(); // WAS saveData();
 	loadList();
 })
 id('noteSaveButton').addEventListener('click',function() {
@@ -177,7 +181,7 @@ id('noteSaveButton').addEventListener('click',function() {
 })
 id('deleteNoteButton').addEventListener('click',function() {
 	items.splice(itemIndex,1);
-	writeData(); // WAS saveData();
+	save(); // WAS saveData();
 	console.log('note deleted');
 	showDialog('noteDialog',false);
 	loadList();
@@ -188,15 +192,18 @@ id('listAddButton').addEventListener('click',function() {
 	if(id('checkAlpha').checked) item.type|=4;
 	console.log('list type: '+item.type);
 	item.text=id('listField').value;
+	console.log('new list: '+item.text+' type '+item.type+' path '+item.path);
 	items.push(item);
 	showDialog('listDialog',false);
+	save();
+	populateList();
 })
 id('listSaveButton').addEventListener('click',function() {
 	if(id('checkBoxes').checked) item.type|=2;
 	if(id('checkAlpha').checked) item.type|=4;
 	console.log('list type: '+item.type);
 	item.text=id('listField').value;
-	logs[itemIndex]=item;
+	items[itemIndex]=item;
 	showDialog('listDialog',false);
 	populateList();
 })
@@ -236,12 +243,14 @@ function loadList() {
 		}
 	}
 	console.log("No more entries! "+lists.length+" lists; "+notes.length+' notes');
-	if((lists.length<1)&&(notes.length<1)) { // no data: restore backup?
+	/* if((lists.length<1)&&(notes.length<1)) { // no data: restore backup?
 		console.log("no data - restore backup?");
-		showDialog('importDialog',true);
+		showDialog('restoreDialog',true);
 		return;
 	}
-	else populateList();
+	else
+	*/
+	populateList();
 }
 // POPULATE LIST
 function populateList() {
@@ -330,7 +339,7 @@ function populateList() {
 	}
 }
 // DATA
-async function load() {
+function load() {
 	var data=localStorage.getItem('ListsData');
 	if(!data) {
 		id('restoreMessage').innerText='no data - restore?';
@@ -378,7 +387,8 @@ function save() {
 	window.localStorage.setItem('ListsData',data);
 	console.log('data saved');
 }
-async function writeData() {
+/*
+function save() {
 	var handle=await root.getFileHandle('ListsData',{create:true});
 	var data=JSON.stringify(items);
 	var writable=await handle.createWritable();
@@ -386,6 +396,7 @@ async function writeData() {
     await writable.close();
 	console.log('data saved to ListsData');
 }
+*/
 id('backupButton').addEventListener('click',function() {showDialog('dataDialog',false); backup();});
 id('restoreButton').addEventListener('click',function() {showDialog('restoreDialog',true)});
 id("fileChooser").addEventListener('change', function() {
@@ -423,8 +434,6 @@ function backup() {
     a.click();
 	display(fileName+" saved to downloads folder");
 }
-// SAVE DATA
-
 // START-UP CODE
 backupDay=window.localStorage.getItem('backupDay');
 if(backupDay) console.log('last backup on day '+backupDay);
