@@ -61,11 +61,6 @@ id('main').addEventListener('touchend', function(event) {
 		id('buttonNew').style.display='block';
     }
 })
-// DISPLAY MESSAGES
-function display(message) {
-	id('message').innerText=message;
-	showDialog('displayDialog',true);
-}
 // SHOW/HIDE DIALOG
 function showDialog(dialog,show) {
     console.log('show '+dialog+': '+show);
@@ -413,7 +408,6 @@ id("fileChooser").addEventListener('change', function() {
 		console.log('data imported and saved');
 		showDialog('restoreDialog',false);
 		load();
-		// display("backup restored - restart");
   	});
   	fileReader.readAsText(file);
   	
@@ -432,7 +426,6 @@ function backup() {
    	a.download=fileName;
     document.body.appendChild(a);
     a.click();
-	display(fileName+" saved to downloads folder");
 }
 // START-UP CODE
 backupDay=window.localStorage.getItem('backupDay');
