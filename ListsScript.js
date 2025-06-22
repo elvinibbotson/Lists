@@ -9,7 +9,7 @@ var items=[];
 var item=null;
 var itemIndex;
 var list={};
-var currentDialog='displayDialog';
+var currentDialog=null;
 var depth=0;
 var path=[];
 var lastSave=null;
@@ -191,7 +191,7 @@ id('listAddButton').addEventListener('click',function() {
 	items.push(item);
 	showDialog('listDialog',false);
 	save();
-	populateList();
+	loadList();
 })
 id('listSaveButton').addEventListener('click',function() {
 	if(id('checkBoxes').checked) item.type|=2;
@@ -206,6 +206,7 @@ id('deleteListButton').addEventListener('click',function() {
 	items.splice(itemIndex,1);
 	path.pop();
 	depth--;
+	list.path='';
 	console.log('list deleted');
 	showDialog('listDialog',false);
 	loadList();

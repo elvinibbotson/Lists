@@ -175,6 +175,19 @@ li {
     padding: 0 0.5em;
     z-index=10;
 }
+#addDialog {
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	padding: 10px;
+	margin: 10px;
+	border: solid white 2px;
+	border-radius: 10px;
+	color: white;
+	background-color: gray;
+	z-index: 20;
+	display: none;
+}
 #listUpButton, #noteUpButton {
     background: url(upButton24px.svg) center center no-repeat;
     float: left;
