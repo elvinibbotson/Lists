@@ -348,35 +348,10 @@ function load() {
 	loadList();
 	var today=Math.floor(new Date().getTime()/86400000);
 	var days=today-backupDay;
-	if(days>15) days='ages';
 	if(days>4) { // backup reminder every 5 days
 		id('backupMessage').innerText=days+' since last backup';
-		toggleDialog('backupDialog',true);
+		showDialog('backupDialog',true);
 	}
-	/* OLD OPFS METHOD
-	root=await navigator.storage.getDirectory();
-	console.log('OPFS root directory: '+root);
-	var persisted=await navigator.storage.persist();
-	console.log('persisted: '+persisted);
-	var handle=await root.getFileHandle('ListsData');
-	var file=await handle.getFile();
-	console.log('read from file '+file);
-	var loader=new FileReader();
-    loader.addEventListener('load',function(evt) {
-    	var data=evt.target.result;
-    	console.log('data: '+data.length+' bytes');
-    	// var json=JSON.parse(data);
-    	// items=json.items;
-    	items=JSON.parse(data);
-		console.log(items.length+' items');
-		list.path='';
-		loadList();
-    });
-    loader.addEventListener('error',function(event) {
-    	console.log('load failed - '+event);
-    });
-	loader.readAsText(file);
-	*/
 }
 function save() {
 	var data=JSON.stringify(items);
@@ -413,7 +388,7 @@ id("fileChooser").addEventListener('change', function() {
   	fileReader.readAsText(file);
   	
 });
-id('confirmBackup').addEventListener('click',backup);
+id('confirmBackup').addEventListener('click',function() {showDialog('backupDialog',false); backup();});
 function backup() {
   	var fileName="ListsData.json";
 	data={'items': items};
@@ -430,20 +405,9 @@ function backup() {
 }
 // START-UP CODE
 backupDay=window.localStorage.getItem('backupDay');
-if(backupDay) console.log('last backup on day '+backupDay);
-else backupDay=0;
+if(!backupDay) backupDay=0;
+console.log('last backup on day '+backupDay);
 load();
-/*
-var data=window.localStorage.getItem('items');
-if(data && data!='undefined') {
-	console.log('JSON: '+data);
-	items=JSON.parse(data);
-	console.log(items.length+' items');
-	list.path='';
-	loadList();
-}
-else showDialog('importDialog',true);
-*/
 // implement service worker if browser is PWA friendly
 if (navigator.serviceWorker.controller) {
 	console.log('Active service worker found, no need to register')
