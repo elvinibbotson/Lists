@@ -349,7 +349,7 @@ function load() {
 	var today=Math.floor(new Date().getTime()/86400000);
 	var days=today-backupDay;
 	if(days>4) { // backup reminder every 5 days
-		id('backupMessage').innerText=days+' since last backup';
+		id('backupMessage').innerText=days+' days since last backup';
 		showDialog('backupDialog',true);
 	}
 }
