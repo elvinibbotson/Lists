@@ -86,12 +86,7 @@ li {
 	left: 0;
 	right: 0;
 	top: 0;
-	/* height: 48px;*/
 	padding: 10px;
-	/* margin: 10px;
-	border: solid white 2px;
-	border-radius: 10px;
-	*/
 	color: white;
 	background-color: black;
 	z-index: 20;
@@ -205,7 +200,7 @@ li {
 }
 #deleteListButton, #deleteNoteButton {
 	float: left;
-	margin-right: 48px;
+	margin-right: 60px;
     background: url(delete24px.svg) center center no-repeat;
 }
 #listAddButton, #noteAddButton {
