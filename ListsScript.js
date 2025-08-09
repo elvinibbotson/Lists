@@ -155,8 +155,8 @@ id('noteAddButton').addEventListener('click',function() {
 	if(list.type<4) {
 		if(notes.length>0) {
 			var highest=items[notes[notes.length-1]].index;
-		console.log('highest index: '+highest);
-		item.index=highest+1;
+			console.log('highest index: '+highest);
+			item.index=highest+1;
 		}
 		else item.index=0;
 	}
@@ -233,19 +233,12 @@ function loadList() {
 	notes=[];
 	for(var i=0;i<items.length;i++) {
 		if(items[i].path==list.path) {
-			if(items[i].type>0) lists.push(i); // add index of list item to lists[]...
+			if(items[i].type&1) lists.push(i); // add index of list item to lists[]...
 			else notes.push(i); // ...or to notes[]
 			console.log('list item '+i+': '+items[i].text);
 		}
 	}
 	console.log("No more entries! "+lists.length+" lists; "+notes.length+' notes');
-	/* if((lists.length<1)&&(notes.length<1)) { // no data: restore backup?
-		console.log("no data - restore backup?");
-		showDialog('restoreDialog',true);
-		return;
-	}
-	else
-	*/
 	populateList();
 }
 // POPULATE LIST
@@ -262,7 +255,7 @@ function populateList() {
 	        list.path+='.'+path[i++];
 	    }
 	    console.log('list.path: '+list.path);
-	id('heading').innerHTML=list.path;
+		id('heading').innerHTML=list.path;
 	}
 	// show lists first, sorted alphabetically
 	lists.sort(function(a,b){ // always sort list items alphabetically...
@@ -302,10 +295,11 @@ function populateList() {
 	for(var i in notes) { // ...then notes
 		console.log('note '+i+': '+notes[i]+'; index: '+items[notes[i]].index+' - '+items[notes[i]].text);
 		notes[i].index=i;
-		if((list.type&2)&&(notes[i].checked)) continue; // don't show checked items
+		if((list.type&2)&&(items[notes[i]].checked)) continue; // don't show checked items
 		listItem=document.createElement('li');
 		listItem.index=i;
-		if(list.type&2) { // checkbox list
+		if(list.type&2) {
+			console.log('checkbox for '+items[notes[i]].text); // checkbox list
 		    var itemBox=document.createElement('input');
 	 	    itemBox.setAttribute('type','checkbox');
 	 	    itemBox.index=i;
