@@ -212,11 +212,12 @@ id('deleteListButton').addEventListener('click',function() {
 	loadList();
 })
 function checkItem(n) {
-    notes[n].checked=!notes[n].checked;
-    console.log(notes[n].text+" checked is "+notes[n].checked);
-    item=items[notes[n]];
-    item.checked=notes[n].checked;
-    items[notes[n]]=item;
+    items[notes[n]].checked=!items[notes[n]].checked;
+    console.log(items[notes[n]].text+" checked is "+items[notes[n]].checked);
+    // item=items[notes[n]];
+    // item.checked=notes[n].checked;
+    // items[notes[n]]=item;
+    save();
 }
 // LOAD LIST ITEMS
 function loadList() {
@@ -305,7 +306,7 @@ function populateList() {
 	 	    itemBox.index=i;
 	 	    itemBox.checked=items[notes[i]].checked;
 	 	    itemBox.addEventListener('change',function() {checkItem(this.index);}); // toggle item .checked property
-	 	    listItem.appendChild(itemBox);
+	 		listItem.appendChild(itemBox);
 		}
 		var itemText=document.createElement('span');
 	 	itemText.index=i;
@@ -363,24 +364,30 @@ function save() {
 }
 */
 id('backupButton').addEventListener('click',function() {showDialog('dataDialog',false); backup();});
-id('restoreButton').addEventListener('click',function() {showDialog('restoreDialog',true)});
-id("fileChooser").addEventListener('change', function() {
-	var file=id('fileChooser').files[0];
-	console.log("file: "+file+" name: "+file.name);
-	var fileReader=new FileReader();
-	fileReader.addEventListener('load', function(evt) {
-		console.log("file read: "+evt.target.result);
-	  	var data=evt.target.result;
-		var json=JSON.parse(data);
-		items=json.items;
-		console.log(items.length+" items loaded");
-		save(); // WAS writeData();
-		console.log('data imported and saved');
-		showDialog('restoreDialog',false);
-		load();
-  	});
-  	fileReader.readAsText(file);
-  	
+id('restoreButton').addEventListener('click',function() {
+	var event = new MouseEvent('click',{
+		bubbles: true,
+		cancelable: true,
+		view: window
+	});
+	fileChooser.dispatchEvent(event);
+	fileChooser.onchange=(event)=>{
+		var file=id('fileChooser').files[0];
+    	console.log("file name: "+file.name);
+    	var fileReader=new FileReader();
+    	fileReader.addEventListener('load', function(evt) {
+			console.log("file read: "+evt.target.result);
+    		var data=evt.target.result;
+    		var json=JSON.parse(data);
+    		items=json.items;
+			console.log(items.length+" items loaded");
+    		save();
+    		console.log('data imported and saved');
+    		load();
+    	});
+    	fileReader.readAsText(file);
+	}
+	showDialog('dataDialog',false);
 });
 id('confirmBackup').addEventListener('click',function() {showDialog('backupDialog',false); backup();});
 function backup() {
