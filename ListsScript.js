@@ -214,9 +214,6 @@ id('deleteListButton').addEventListener('click',function() {
 function checkItem(n) {
     items[notes[n]].checked=!items[notes[n]].checked;
     console.log(items[notes[n]].text+" checked is "+items[notes[n]].checked);
-    // item=items[notes[n]];
-    // item.checked=notes[n].checked;
-    // items[notes[n]]=item;
     save();
 }
 // LOAD LIST ITEMS
@@ -333,8 +330,8 @@ function populateList() {
 function load() {
 	var data=localStorage.getItem('ListsData');
 	if(!data) {
-		id('restoreMessage').innerText='no data - restore?';
-		showDialog('restoreDialog',true);
+		alert('no data - restore backup file?');
+		showDialog('dataDialog',true);
 		return;
 	}
 	items=JSON.parse(data);
@@ -353,16 +350,6 @@ function save() {
 	window.localStorage.setItem('ListsData',data);
 	console.log('data saved');
 }
-/*
-function save() {
-	var handle=await root.getFileHandle('ListsData',{create:true});
-	var data=JSON.stringify(items);
-	var writable=await handle.createWritable();
-    await writable.write(data);
-    await writable.close();
-	console.log('data saved to ListsData');
-}
-*/
 id('backupButton').addEventListener('click',function() {showDialog('dataDialog',false); backup();});
 id('restoreButton').addEventListener('click',function() {
 	var event = new MouseEvent('click',{
