@@ -330,7 +330,8 @@ function populateList() {
 function load() {
 	var data=localStorage.getItem('ListsData');
 	if(!data) {
-		alert('no data - restore backup file?');
+		id('dataMessage').innerText='no data - restore backup?';
+		id('backupButton').disabled=true;
 		showDialog('dataDialog',true);
 		return;
 	}
@@ -341,8 +342,9 @@ function load() {
 	var today=Math.floor(new Date().getTime()/86400000);
 	var days=today-backupDay;
 	if(days>4) { // backup reminder every 5 days
-		id('backupMessage').innerText=days+' days since last backup';
-		showDialog('backupDialog',true);
+		id('dataMessage').innerText=days+' days since last backup';
+		id('restoreButton').disabled=true;
+		showDialog('dataDialog',true);
 	}
 }
 function save() {
@@ -374,9 +376,10 @@ id('restoreButton').addEventListener('click',function() {
     	});
     	fileReader.readAsText(file);
 	}
+	id('dataMessage').innerText='';
+	id('backupButton').disabled=false;
 	showDialog('dataDialog',false);
 });
-id('confirmBackup').addEventListener('click',function() {showDialog('backupDialog',false); backup();});
 function backup() {
   	var fileName="ListsData.json";
 	data={'items': items};
@@ -390,6 +393,9 @@ function backup() {
    	a.download=fileName;
     document.body.appendChild(a);
     a.click();
+    id('dataMessage').innerText='';
+    id('restoreButton').disabled=false;
+    show('dataDialog',false);
 }
 // START-UP CODE
 backupDay=window.localStorage.getItem('backupDay');
