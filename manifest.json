@@ -6,7 +6,6 @@
 		"src": "Lists.png",
 		"sizes": "512x512",
 		"type": "image/png",
-		"purpose": "any maskable"
 	}
   ],
   "start_url": "index.html",
