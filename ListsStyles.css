@@ -44,6 +44,7 @@ input {
 input[type=text] {
 	font-size: 1.5em;
 	height: 24px;
+	color: white;
 }
 input[type=password] {
 	font-size: 1.5em;
@@ -124,7 +125,6 @@ li {
 	color: gray;
 }
 .round-button {
-	display: block;
 	position: fixed;
 	right: 20px;
 	bottom: 20px;
@@ -187,8 +187,15 @@ li {
 	opacity: 0.6;
 	z-index: 15;
 }
+#buttonFind {
+	left: 20px;
+	background: url(find.svg) center center no-repeat;
+	display: 'none';
+}
 #buttonNew {
+	right: 20px;
 	background: url(add.svg) center center no-repeat;
+	display: 'block';
 }
 #addDialog {
 	position: fixed;

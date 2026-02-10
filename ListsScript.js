@@ -59,6 +59,7 @@ id('main').addEventListener('touchend', function(event) {
 		id(currentDialog).style.display='none';
 		currentDialog=null;
 		id('buttonNew').style.display='block';
+		id('buttonFind').style.display=(path=='')?'block':'none';
 		id('curtain').style.height='0';
     }
 })
@@ -70,12 +71,14 @@ function showDialog(dialog,show) {
         id(dialog).style.display='block';
         currentDialog=dialog;
         id('buttonNew').style.display='none';
+        id('buttonFind').style.display='none';
         id('curtain').style.height='100%';
     }
     else {
         id(dialog).style.display='none';
         currentDialog=null;
         id('buttonNew').style.display='block';
+        id('buttonFind').style.display=(path=='')?'block':'none';
         id('curtain').style.height='0';
     }
     console.log('current dialog: '+currentDialog);
@@ -88,7 +91,7 @@ id('heading').addEventListener('click',function() {
 		console.log('edit list header - '+(lists.length+notes.length)+' items');
 		id('checkAlpha').checked=list.type&4;
 		id('checkBoxes').checked=list.type&2;
-		if((lists.length>0)||(id('list').getElementsByTagName('li').lenght>0)) {
+		if((lists.length>0)||(id('list').getElementsByTagName('li').length>0)) {
 			id('deleteListButton').style.display='none';
 			console.log('disable delete');
 		}
@@ -133,6 +136,72 @@ id('addListButton').addEventListener('click',function() {
 id('addNoteButton').addEventListener('click',function() {
 	showDialog('noteDialog',true);
 })
+// FIND ITEM
+id('buttonFind').addEventListener('click', function() {
+	id('findText').value='';
+	showDialog('findDialog',true);
+})
+id('findText').addEventListener('change',function() {
+	showDialog('findDialog',false);
+	find();
+})
+function find() {
+	var found=[];
+	var findText=id('findText').value.toLowerCase();
+	if(findText.length<1) return;
+	console.log('FIND '+findText);
+	for(var i in items) {
+		if(items[i].text.toLowerCase().includes(findText)) found.push(i);
+		else if(items[i].path) {
+			if(items[i].path.toLowerCase().includes(findText)) found.push(i);
+		}
+	}
+	if(found.length<1) return; // no matches found
+	id("list").innerHTML=""; // clear list
+	id('heading').innerHTML='found...';
+	id('buttonFind').style.display='none';
+	path.push('FOUND');
+	depth++;
+	var item={};
+	for(i in found) { // list matches
+		var n=found[i];
+		item.path=items[n].path;
+		item.text=items[n].text;
+		if(item.text.length>15) item.text=item.text.substr(0,15)+'...';
+		console.log('add item '+i+': path: '+item.path+' - '+item.text);
+		listItem=document.createElement('li');
+		listItem.index=i;
+		var itemText=document.createElement('span');
+	 	itemText.index=i;
+        if(item.path) itemText.innerText=item.path+' - ';
+        itemText.innerText+=item.text;
+	 	listItem.appendChild(itemText);
+	 	itemText.addEventListener('click',function(event) {
+	 		console.log('show item '+this.index);
+			itemIndex=found[this.index];
+			item=items[itemIndex];
+			console.log('note '+itemIndex+': '+item.text+'; type '+item.type+'; index: '+item.index);
+			if(item.type>0) { // show list
+				console.log('show list for '+item.text);
+				list.path=item.path+'.'+item.text;
+				path=list.path.split('.');
+				loadList();
+			}
+			else { // show note
+				id('noteTitle').innerHTML='note';
+				console.log('note is '+item.text);
+				id('noteField').value=item.text;
+				id('noteUpButton').style.display='none';
+				id('noteDownButton').style.display='none';
+				id('deleteNoteButton').style.display='none';
+				id('noteAddButton').style.display='none';
+				id('noteSaveButton').style.display='block';
+				showDialog('noteDialog',true);
+			}
+		})
+		id('list').appendChild(listItem);
+	}
+}
 // MOVE UP/DOWN
 id('noteUpButton').addEventListener('click', function() {move(true);})
 id('noteDownButton').addEventListener('click', function() {move(false);})
@@ -222,7 +291,6 @@ function checkItem(n) {
 // LOAD LIST ITEMS
 function loadList() {
 	console.log("load children of list.path "+list.path+" - depth: "+depth);
-	// NEW CODE...
 	if(list.path=='') {
 	    list.type=1;
 	    path=[];
@@ -248,7 +316,10 @@ function populateList() {
     id("list").innerHTML=""; // clear list
 	console.log("populate list for path "+path+" with "+(lists.length+notes.length)+" items - depth: "+depth);
 	console.log('list type is '+list.type);
-	if(path.length<1) id('heading').innerHTML='Lists';
+	if(path.length<1) {
+		id('heading').innerHTML='Lists';
+		id('buttonFind').style.display='block';
+	}
 	else {
 	    list.path=path[0];
 	    var i=1;
@@ -257,6 +328,7 @@ function populateList() {
 	    }
 	    console.log('list.path: '+list.path);
 		id('heading').innerHTML=list.path;
+		id('buttonFind').style.display='none';
 	}
 	// show lists first, sorted alphabetically
 	lists.sort(function(a,b){ // always sort list items alphabetically...
