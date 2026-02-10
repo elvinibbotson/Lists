@@ -28,7 +28,6 @@ id('main').addEventListener('touchend', function(event) {
     var drag={};
     drag.x=dragStart.x-event.changedTouches[0].clientX;
     drag.y=dragStart.y-event.changedTouches[0].clientY;
-    // console.log('drag '+drag.x+','+drag.y);
     if(Math.abs(drag.y)>50) return; // ignore vertical drags
     if((drag.x<-50)&&(depth>0)) { // drag right to decrease depth...
         console.log('path: '+path);
@@ -37,7 +36,6 @@ id('main').addEventListener('touchend', function(event) {
             populateList(); // ...or just return from 'check' view
             return;
         }
-        // list.id=list.owner;
         path.pop();
         depth--;
         if(depth<1) {
@@ -52,6 +50,7 @@ id('main').addEventListener('touchend', function(event) {
 	    	}
 		}
         console.log('list.path: '+list.path+' depth: '+depth);
+        id('buttonNew').style.display='block';
         loadList();
     }
     else if(currentDialog && drag.x>50) { // drag left to cancel dialogs
@@ -112,7 +111,6 @@ id('buttonNew').addEventListener('click', function(){
 	id('deleteNoteButton').style.display='none';
 	id('noteSaveButton').style.display='none';
 	id('noteAddButton').style.display='block';
-	// item.owner=list.id;
 	item.type=0;
     if(depth<2 && list.type>0) { // list above depth 2 - can add sub-list...
         showDialog('addDialog',true);
@@ -128,7 +126,6 @@ id('addListButton').addEventListener('click',function() {
 	id('listSaveButton').style.display='none';
 	id('listAddButton').style.display='block';
 	item={};
-    // item.owner=list.id;
     item.type=1;
     item.path=list.path;
 	showDialog('listDialog',true);
@@ -160,6 +157,7 @@ function find() {
 	id("list").innerHTML=""; // clear list
 	id('heading').innerHTML='found...';
 	id('buttonFind').style.display='none';
+	id('buttonNew').style.display='none';
 	path.push('FOUND');
 	depth++;
 	var item={};
@@ -167,7 +165,7 @@ function find() {
 		var n=found[i];
 		item.path=items[n].path;
 		item.text=items[n].text;
-		if(item.text.length>15) item.text=item.text.substr(0,15)+'...';
+		if(item.text.length>30) item.text=item.text.substr(0,30)+'...';
 		console.log('add item '+i+': path: '+item.path+' - '+item.text);
 		listItem=document.createElement('li');
 		listItem.index=i;
@@ -207,7 +205,6 @@ id('noteUpButton').addEventListener('click', function() {move(true);})
 id('noteDownButton').addEventListener('click', function() {move(false);})
 function move(up) { // move note up/down
 	var nextItem;
-	// for(var i in notes) console.log('note '+i+': '+notes[i].text+' id: '+notes[i].id);
 	console.log('move note '+itemIndex+' index: '+item.index+'; up is '+up);
     if(up && item.index<1) return; // cannot move up if already first...
     if(!up && (notes.length-item.index<2)) return; // ...or down if already last
