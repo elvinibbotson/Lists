@@ -296,7 +296,7 @@ function populateList() {
 	console.log("populate list for path "+path+" with "+(lists.length+notes.length)+" items - depth: "+depth);
 	console.log('list type is '+list.type);
 	if(path.length<1) {
-		id('heading').innerHTML='SolidLists';
+		id('heading').innerHTML='Lists';
 		id('buttonFind').style.display='block';
 	}
 	else {
