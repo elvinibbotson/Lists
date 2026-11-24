@@ -201,7 +201,7 @@ function move(up) { // move note up/down
 // NOTE
 id('noteField').addEventListener('change',setChange);
 function setChange() {
-	id('noteSaveButton').style.display='block';
+	if(id('noteAddButton').style.display!='block') id('noteSaveButton').style.display='block';
 }
 id('noteAddButton').addEventListener('click',function() {
 	item.text=id('noteField').value;
