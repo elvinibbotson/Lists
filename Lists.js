@@ -199,6 +199,10 @@ function move(up) { // move note up/down
 	loadList();
 }
 // NOTE
+id('noteField').addEventListener('change',setChange);
+function setChange() {
+	id('noteSaveButton').style.display='block';
+}
 id('noteAddButton').addEventListener('click',function() {
 	item.text=id('noteField').value;
 	item.path=list.path;
@@ -374,7 +378,7 @@ function populateList() {
 			id('noteDownButton').style.display='block';
 			id('deleteNoteButton').style.display='block';
 			id('noteAddButton').style.display='none';
-			id('noteSaveButton').style.display='block';
+			id('noteSaveButton').style.display='none';
 			showDialog('noteDialog',true);
 		})
 		id('list').appendChild(listItem);
